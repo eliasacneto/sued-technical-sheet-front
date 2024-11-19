@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { Button } from "@/components/ui/button";
 import { ToastContainer, toast } from "react-toastify";
@@ -17,24 +17,41 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+
+import { Card } from "@/components/ui/card";
+import Link from "next/link";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Eye, Trash } from "lucide-react";
+
 import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
-import { Card } from "@/components/ui/card";
-import Link from "next/link";
+import MenuViewDialog from "@/components/menuViewDialog";
 
 const Menus = () => {
-  const [selectedMonth, setSelectedMonth] = useState<keyof typeof menu>("Novembro");
-  const [weekType, setWeekType] = useState<"oddWeeks" | "evenWeeks">("oddWeeks");
+  const [menuState, setMenuState] = useState(menu);
 
-  const currentMenuItems = menu[selectedMonth][weekType];
+  const [selectedMonth, setSelectedMonth] =
+    useState<keyof typeof menu>("Novembro");
+
+  const [weekType, setWeekType] = useState<"oddWeeks" | "evenWeeks">(
+    "oddWeeks"
+  );
+
+  const currentMenuItems = menuState[selectedMonth][weekType];
 
   const notify = () =>
     toast.success("Cadastro feito com sucesso!", {
@@ -48,6 +65,19 @@ const Menus = () => {
       theme: "light",
     });
 
+  const handleView = (day: string, meal: string) => {
+    toast.info(`Visualizando: ${day} - ${meal}`, {
+      position: "bottom-right",
+      autoClose: 2500,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+    });
+  };
+
   return (
     <div className="flex flex-col justify-start gap-4 ">
       <h1 className="font-bold text-xl">Cardápios</h1>
@@ -58,68 +88,60 @@ const Menus = () => {
           </Button>
         </Link>
         <ToastContainer />
-        {/* 
-          Diálogo desabilitado temporariamente. 
-          Mantido como comentário para possível futura implementação.
-        */}
-        {/* <Dialog>
-          <DialogTrigger>
-            <Button
-              className="bg-orange-500 hover:bg-orange-600 font-bold"
-              onClick={notify}
-            >
-              + Novo cardápio
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Are you absolutely sure?</DialogTitle>
-              <DialogDescription>
-                This action cannot be undone. This will permanently delete your
-                account and remove your data from our servers.
-              </DialogDescription>
-            </DialogHeader>
-          </DialogContent>
-        </Dialog> */}
       </div>
       <div className="flex justify-between items-center">
-        <div className="flex gap-4">
-          <select
-            value={selectedMonth}
-            onChange={(e) => setSelectedMonth(e.target.value as keyof typeof menu)}
-            className="p-2 border rounded"
-          >
-            {Object.keys(menu).map((month) => (
-              <option key={month} value={month}>
-                {month}
-              </option>
-            ))}
-          </select>
-          <select
-            value={weekType}
-            onChange={(e) => setWeekType(e.target.value as "oddWeeks" | "evenWeeks")}
-            className="p-2 border rounded"
-          >
-            <option value="oddWeeks">Semanas Ímpares</option>
-            <option value="evenWeeks">Semanas Pares</option>
-          </select>
+        <div className="flex w-full gap-4">
+          <div className="flex  items-center gap-2">
+            <Label className="text-base">Mês:</Label>
+            <Select
+              value={selectedMonth}
+              onValueChange={(value) =>
+                setSelectedMonth(value as keyof typeof menu)
+              }
+            >
+              <SelectTrigger className="p-2 border rounded">
+                <SelectValue placeholder="Selecionar mês" />
+              </SelectTrigger>
+              <SelectContent>
+                {Object.keys(menuState).map((month) => (
+                  <SelectItem key={month} value={month}>
+                    {month} {/* Exibe o nome do mês */}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex  items-center gap-2">
+            <Label className="text-base w-full">Filtrar por semana</Label>
+            <Select
+              value={weekType}
+              onValueChange={(value) =>
+                setWeekType(value as "oddWeeks" | "evenWeeks")
+              }
+            >
+              <SelectTrigger className="p-2 border rounded">
+                <SelectValue placeholder="Selecionar tipo de semana" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="oddWeeks">Semanas Ímpares</SelectItem>
+                <SelectItem value="evenWeeks">Semanas Pares</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
-
       </div>
-      <div className="flex justify-start items-center w-[300px] gap-4">
-        <Search size={16} />
-        <Input placeholder="Pesquisar..." />
-      </div>
-      <div className="flex">
+      <div className="flex mt-6">
         <Card className="w-full p-4">
           <Table>
             <TableCaption className="mt-10 text-gray-400">
-              Cardápio do mês de {selectedMonth} - {weekType === "oddWeeks" ? "Semanas Ímpares" : "Semanas Pares"}
+              Cardápio do mês de {selectedMonth} -{" "}
+              {weekType === "oddWeeks" ? "Semanas Ímpares" : "Semanas Pares"}
             </TableCaption>
             <TableHeader>
               <TableRow>
                 <TableHead className="w-[200px] font-bold">Dia</TableHead>
                 <TableHead className="font-bold">Refeição</TableHead>
+                <TableHead className=" text-end font-bold">Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -127,18 +149,70 @@ const Menus = () => {
                 <TableRow key={day}>
                   <TableCell className="font-medium">{day}</TableCell>
                   <TableCell>{meal}</TableCell>
+                  <TableCell className="text-end">
+                    <div className="flex justify-end gap-2">
+                      {/* Botão de Visualizar */}
+
+                      <MenuViewDialog
+                        day={day}
+                        meal={meal}
+                        month={selectedMonth}
+                        weekType={weekType}
+                      />
+                      <Dialog>
+                        <DialogTrigger>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-red-500 hover:text-red-700"
+                          >
+                            <Trash />
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>
+                              Deseja remover o cardápio?
+                            </DialogTitle>
+                            <DialogDescription>
+                              Essa ação não poderá ser desfeita.
+                            </DialogDescription>
+                          </DialogHeader>
+                          <DialogFooter>
+                            <Button variant="secondary">Fechar</Button>
+                            <Button
+                              variant="destructive"
+                              onClick={() =>
+                                setMenuState((prevMenu) => ({
+                                  ...prevMenu,
+                                  [selectedMonth]: {
+                                    ...prevMenu[selectedMonth],
+                                    [weekType]: Object.fromEntries(
+                                      Object.entries(
+                                        prevMenu[selectedMonth][weekType]
+                                      ).filter(([key]) => key !== day)
+                                    ),
+                                  },
+                                }))
+                              }
+                            >
+                              Remover
+                            </Button>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
+                      {/* <Button
+                        variant="ghost"
+                        className="text-red-500 hover:text-red-600 px-2 py-1"
+                        onClick={() => handleDelete(day)}
+                      >
+                        <Trash />
+                      </Button> */}
+                    </div>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
-            {/* 
-              Tabela desativada para possível futura adição.
-            */}
-            {/* <TableFooter>
-              <TableRow>
-                <TableCell colSpan={3}>Total</TableCell>
-                <TableCell className="text-right">$2,500.00</TableCell>
-              </TableRow>
-            </TableFooter> */}
           </Table>
         </Card>
       </div>
@@ -147,4 +221,3 @@ const Menus = () => {
 };
 
 export default Menus;
-
