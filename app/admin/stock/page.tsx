@@ -2,6 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { stock } from '../../mock/stock.mock'
 
 import React from "react";
 
@@ -28,50 +29,50 @@ import { Search } from "lucide-react";
 import { Card, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
 
-const invoices = [
-  {
-    invoice: "INV001",
-    paymentStatus: "Paid",
-    totalAmount: "250",
-    paymentMethod: "Credit Card",
-  },
-  {
-    invoice: "INV002",
-    paymentStatus: "Pending",
-    totalAmount: "150",
-    paymentMethod: "PayPal",
-  },
-  {
-    invoice: "INV003",
-    paymentStatus: "Unpaid",
-    totalAmount: "350",
-    paymentMethod: "Bank Transfer",
-  },
-  {
-    invoice: "INV004",
-    paymentStatus: "Paid",
-    totalAmount: "450",
-    paymentMethod: "Credit Card",
-  },
-  {
-    invoice: "INV005",
-    paymentStatus: "Paid",
-    totalAmount: "550",
-    paymentMethod: "PayPal",
-  },
-  {
-    invoice: "INV006",
-    paymentStatus: "Pending",
-    totalAmount: "200",
-    paymentMethod: "Bank Transfer",
-  },
-  {
-    invoice: "INV007",
-    paymentStatus: "Unpaid",
-    totalAmount: "300",
-    paymentMethod: "Credit Card",
-  },
-];
+// const invoices = [
+//   {
+//     invoice: "INV001",
+//     paymentStatus: "Paid",
+//     totalAmount: "250",
+//     paymentMethod: "Credit Card",
+//   },
+//   {
+//     invoice: "INV002",
+//     paymentStatus: "Pending",
+//     totalAmount: "150",
+//     paymentMethod: "PayPal",
+//   },
+//   {
+//     invoice: "INV003",
+//     paymentStatus: "Unpaid",
+//     totalAmount: "350",
+//     paymentMethod: "Bank Transfer",
+//   },
+//   {
+//     invoice: "INV004",
+//     paymentStatus: "Paid",
+//     totalAmount: "450",
+//     paymentMethod: "Credit Card",
+//   },
+//   {
+//     invoice: "INV005",
+//     paymentStatus: "Paid",
+//     totalAmount: "550",
+//     paymentMethod: "PayPal",
+//   },
+//   {
+//     invoice: "INV006",
+//     paymentStatus: "Pending",
+//     totalAmount: "200",
+//     paymentMethod: "Bank Transfer",
+//   },
+//   {
+//     invoice: "INV007",
+//     paymentStatus: "Unpaid",
+//     totalAmount: "300",
+//     paymentMethod: "Credit Card",
+//   },
+// ];
 
 const Stock = () => {
   const notify = () =>
@@ -124,26 +125,31 @@ const Stock = () => {
         <Card className="w-full p-4">
           <Table>
             <TableCaption className="mt-10 text-gray-400">
-              Lista com todas as empresas cadastradas.
+              Lista com todos os ingredientes cadastra.
             </TableCaption>
             <TableHeader>
               <TableRow>
                 <TableHead className="w-[200px] font-bold">
-                  Nome da empresa
+                  Ingredientes
                 </TableHead>
-                <TableHead className="font-bold">Segmento</TableHead>
-                <TableHead className="font-bold">Pontuação</TableHead>
-                <TableHead className="text-right font-bold">Ações</TableHead>
+                <TableHead className="font-bold">Marca</TableHead>
+                <TableHead className="font-bold">Unid. Min.</TableHead>
+                <TableHead className="font-bold">Preço Unit.</TableHead>
+                <TableHead className="font-bold">Est. total</TableHead>
+                <TableHead className="font-bold">Inves. Total</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {invoices.map((invoice) => (
-                <TableRow key={invoice.invoice}>
+              {stock?.map((invoice) => (
+                <TableRow key={invoice.id}>
                   <TableCell className="font-medium">
-                    {invoice.totalAmount}
+                    {invoice.name}
                   </TableCell>
-                  <TableCell>{invoice.paymentStatus}</TableCell>
-                  <TableCell> {invoice.totalAmount}</TableCell>
+                  <TableCell>{invoice.brand}</TableCell>
+                  <TableCell> {invoice.unitSize}</TableCell>
+                  <TableCell> {invoice.unitPrice}</TableCell>
+                  <TableCell> {invoice.totalStock}</TableCell>
+                  <TableCell> {invoice.totalInvestment}</TableCell>
                   <TableCell className="text-right"></TableCell>
                 </TableRow>
               ))}
@@ -162,3 +168,4 @@ const Stock = () => {
 };
 
 export default Stock;
+
