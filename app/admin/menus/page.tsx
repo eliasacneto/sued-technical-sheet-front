@@ -31,7 +31,7 @@ import { Card } from "@/components/ui/card";
 import Link from "next/link";
 
 const Menus = () => {
-  const [selectedMonth, setSelectedMonth] = useState<keyof typeof menu>("November");
+  const [selectedMonth, setSelectedMonth] = useState<keyof typeof menu>("Novembro");
   const [weekType, setWeekType] = useState<"oddWeeks" | "evenWeeks">("oddWeeks");
 
   const currentMenuItems = menu[selectedMonth][weekType];

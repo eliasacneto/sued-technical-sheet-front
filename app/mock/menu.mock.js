@@ -1,5 +1,5 @@
 export const menu = {
-  November: {
+  Novembro: {
       oddWeeks: {
         segunda: "Canja de Frango",
         terca: "Arroz com Feijão e Carne Moída",
@@ -15,7 +15,7 @@ export const menu = {
         sexta: "Arroz com Brócolis e Frango Grelhado",
       },
     },
-    December: {
+    Dezembro: {
       oddWeeks: {
         segunda: "Arroz com Feijão e Frango Assado",
         terca: "Sopa de Lentilha",
