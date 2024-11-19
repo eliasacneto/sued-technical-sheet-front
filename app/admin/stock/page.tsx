@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { stock } from '../../mock/stock.mock'
+import { stock } from "../../mock/stock.mock";
 
 import React from "react";
 
@@ -125,7 +125,7 @@ const Stock = () => {
         <Card className="w-full p-4">
           <Table>
             <TableCaption className="mt-10 text-gray-400">
-              Lista com todos os ingredientes cadastra.
+              Lista com todos os itens cadastrados.
             </TableCaption>
             <TableHeader>
               <TableRow>
@@ -142,9 +142,7 @@ const Stock = () => {
             <TableBody>
               {stock?.map((invoice) => (
                 <TableRow key={invoice.id}>
-                  <TableCell className="font-medium">
-                    {invoice.name}
-                  </TableCell>
+                  <TableCell className="font-medium">{invoice.name}</TableCell>
                   <TableCell>{invoice.brand}</TableCell>
                   <TableCell> {invoice.unitSize}</TableCell>
                   <TableCell> {invoice.unitPrice}</TableCell>
@@ -168,4 +166,3 @@ const Stock = () => {
 };
 
 export default Stock;
-

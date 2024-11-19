@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { ingredients } from '../../mock/ingredients.mock'
+import { ingredients } from "../../mock/ingredients.mock";
 
 import React from "react";
 
@@ -112,7 +112,7 @@ const Ingredients = () => {
         <Card className="w-full p-4">
           <Table>
             <TableCaption className="mt-10 text-gray-400">
-              Lista com todas as empresas cadastradas.
+              Lista com todas os ingredientes cadastrados.
             </TableCaption>
             <TableHeader>
               <TableRow>
@@ -135,9 +135,7 @@ const Ingredients = () => {
             <TableBody>
               {ingredients?.map((invoice) => (
                 <TableRow key={invoice.id}>
-                  <TableCell className="font-medium">
-                    {invoice.name}
-                  </TableCell>
+                  <TableCell className="font-medium">{invoice.name}</TableCell>
                   <TableCell className="font-medium">{invoice.pb}</TableCell>
                   <TableCell className="font-medium"> {invoice.fc}</TableCell>
                   <TableCell className="font-medium"> {invoice.pl}</TableCell>
@@ -147,8 +145,14 @@ const Ingredients = () => {
                   <TableCell className="font-medium"> {invoice.lpd}</TableCell>
                   <TableCell className="font-medium"> {invoice.vitA}</TableCell>
                   <TableCell className="font-medium"> {invoice.vitC}</TableCell>
-                  <TableCell className="font-medium"> {invoice.calcio}</TableCell>
-                  <TableCell className="font-medium"> {invoice.ferro}</TableCell>
+                  <TableCell className="font-medium">
+                    {" "}
+                    {invoice.calcio}
+                  </TableCell>
+                  <TableCell className="font-medium">
+                    {" "}
+                    {invoice.ferro}
+                  </TableCell>
                   <TableCell className="text-right"></TableCell>
                 </TableRow>
               ))}
@@ -161,7 +165,6 @@ const Ingredients = () => {
 };
 
 export default Ingredients;
-
 
 /**
  * {
