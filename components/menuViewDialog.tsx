@@ -87,7 +87,12 @@ const MenuViewDialog: React.FC<MenuViewDialogProps> = ({
             <Button variant="secondary" onClick={() => setIsOpen(false)}>
               Fechar
             </Button>
-            <Button onClick={handleExportToPDF}>Exportar PDF</Button>
+            <Button
+              className="bg-orange-500 hover:bg-orange-600 text-white font-bold"
+              onClick={handleExportToPDF}
+            >
+              Exportar Ficha técnica
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
