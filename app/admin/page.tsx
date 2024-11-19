@@ -8,7 +8,7 @@ export default function Login() {
   return (
     <>
       <div className="flex lg:flex-row ">
-        <div className="lg:flex w-full h-60 lg:h-screen lg:w-[70%] bg-slate-500 bg-admin bg-blend-multiply text-white hidden"></div>
+        <div className="lg:flex w-full h-60 lg:h-screen lg:w-[70%] bg-orange-200 bg-admin bg-blend-multiply text-white hidden"></div>
         <div className="flex flex-col bg-white text-black justify-center items-center w-full lg:w-[30%] gap-2 h-screen mx-10  lg:text-start">
           <div className="flex justify-start items-center">
             <img

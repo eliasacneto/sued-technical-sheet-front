@@ -101,7 +101,7 @@ const NewMenu = () => {
           </p>
         </div>
         <div className="flex justify-start gap-4 md:justify-end mb-4">
-          <Link href="/admin/menus/new">
+          <Link href="/admin/menus">
             <Button
               variant="outline"
               className=" text-orange-500 hover:text-orange-600  font-bold"
