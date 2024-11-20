@@ -116,7 +116,7 @@ const Stock = () => {
           <DialogTrigger>
             <Button
               variant="ghost"
-              className="bg-orange-500 hover:bg-orange-600 text-white font-bold"
+              className="bg-orange-500 hover:bg-orange-600 text-white hover:text-white font-bold"
             >
               + Novo item
             </Button>
