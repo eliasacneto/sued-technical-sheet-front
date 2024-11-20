@@ -4,6 +4,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Textarea } from "@/components/ui/textarea";
 import React, { useState } from "react";
+import { ingredientsRecipe } from '../../../mock/ingredienteRecipe.mock'
 
 import {
   Select,
@@ -45,28 +46,81 @@ import {
 } from "@/components/ui/dialog";
 
 const NewMenu = () => {
-  const [ingredients, setIngredients] = useState<
-    { name: string; unit: string; quantity: string }[]
-  >([]);
+  const [ingredients, setIngredients] = useState<Array<{
+    name: string;
+    unit: string;
+    quantity: string;
+    netWeight: string;
+    correctionFactor: string;
+    cookedWeight: string;
+    cookingIndex: string;
+    cost: string;
+  }>>([]);
+
   const [newIngredient, setNewIngredient] = useState({
     name: "",
     unit: "",
     quantity: "",
+    netWeight: "", 
+    correctionFactor: "", 
+    cookedWeight: "", 
+    cookingIndex: "", 
+    cost: "",
   });
-  const [editingIngredient, setEditingIngredient] = useState<null | number>(
-    null
-  );
 
-  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [editingIngredient, setEditingIngredient] = useState<number | null>(null);
+  const [isOpen, setIsOpen] = useState(false);
 
-  const openDialog = () => setIsOpen(true);
-  const closeDialog = () => setIsOpen(false);
+  const findSelectedIngredient = (name: string) => {
+    return ingredientsRecipe.find(ing => ing.name === name);
+  };
+
+  const calculateValues = (grossWeight: string, selectedIngredient: any) => {
+    if (!grossWeight || !selectedIngredient) return null;
+
+    const weight = parseFloat(grossWeight);
+
+    return {
+      netWeight: (weight * selectedIngredient.plBase).toFixed(2),
+      correctionFactor: selectedIngredient.fc.toFixed(2),
+      cookedWeight: (weight * selectedIngredient.pc).toFixed(2),
+      cookingIndex: (selectedIngredient.pc / selectedIngredient.plBase).toFixed(2),
+      cost: (weight * selectedIngredient.costPerKg).toFixed(2)
+    };
+  };
+
+  const handleIngredientSelect = (value: string) => {
+    const selectedIngredient = findSelectedIngredient(value);
+    if (selectedIngredient) {
+      setNewIngredient({
+        ...newIngredient,
+        name: value,
+        unit: selectedIngredient.unit
+      });
+    }
+  };
+
+  const handleWeightChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const grossWeight = e.target.value;
+    const selectedIngredient = findSelectedIngredient(newIngredient.name);
+
+    if (selectedIngredient) {
+      const calculations = calculateValues(grossWeight, selectedIngredient);
+      if (calculations) {
+        setNewIngredient({
+          ...newIngredient,
+          quantity: grossWeight,
+          ...calculations
+        });
+      }
+    }
+  };
 
   const handleEditIngredient = (index: number) => {
     const ingredient = ingredients[index];
     setEditingIngredient(index);
     setNewIngredient(ingredient);
-    openDialog();
+    setIsOpen(true);
   };
 
   const saveIngredient = () => {
@@ -76,36 +130,36 @@ const NewMenu = () => {
     }
 
     if (editingIngredient !== null) {
-      // Atualiza o ingrediente existente
-      setIngredients((prevIngredients) =>
+      setIngredients(prevIngredients =>
         prevIngredients.map((ingredient, index) =>
           index === editingIngredient ? newIngredient : ingredient
         )
       );
     } else {
-      // Adiciona um novo ingrediente
-      setIngredients([...ingredients, newIngredient]);
+      setIngredients(prev => [...prev, newIngredient]);
     }
 
     toast.success("Ingrediente salvo com sucesso!");
-    closeDialog();
+    setIsOpen(false);
   };
 
+   const openDialog = () => setIsOpen(true);
+  const closeDialog = () => setIsOpen(false);
+
+
   return (
-    <div className="flex w-full flex-col justify-start gap-4 ">
+    <div className="flex w-full flex-col justify-start gap-4">
+      {/* Header */}
       <div className="flex flex-col-reverse md:flex-row w-full">
         <div className="flex flex-col w-full antialiased">
           <h3 className="font-bold text-xl md:text-2xl">Adicionar cardápio</h3>
-          <p className=" text-base md:text-lg text-gray-400">
+          <p className="text-base md:text-lg text-gray-400">
             Adicione ingredientes e modo de preparo a um cardápio
           </p>
         </div>
         <div className="flex justify-start gap-4 md:justify-end mb-4">
           <Link href="/admin/menus">
-            <Button
-              variant="outline"
-              className=" text-orange-500 hover:text-orange-600  font-bold"
-            >
+            <Button variant="outline" className="text-orange-500 hover:text-orange-600 font-bold">
               <ArrowLeft /> Voltar
             </Button>
           </Link>
@@ -113,12 +167,16 @@ const NewMenu = () => {
         </div>
       </div>
 
+     
       <div className="flex flex-col md:flex-row w-full gap-4 mt-6 md:mt-20">
-        <div className="flex w-full  md:w-[60%] flex-col gap-4">
+        <div className="flex w-full md:w-[60%] flex-col gap-4">
+       
           <div className="flex w-full flex-col gap-2">
             <Label className="text-base">Nome da refeição</Label>
             <Input placeholder="Nome do prato" />
           </div>
+
+  
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex w-full flex-col gap-2">
               <Label className="text-base">Atende quantas pessoas?</Label>
@@ -127,79 +185,49 @@ const NewMenu = () => {
             <div className="flex w-full flex-col gap-2">
               <Label className="text-base">Cálculo por peso</Label>
               <Select>
-                <SelectTrigger className="">
+                <SelectTrigger>
                   <SelectValue placeholder="Selecionar" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="dark">Peso Bruto (cru)</SelectItem>
-                  <SelectItem value="light">Peso Cozido</SelectItem>
+                  <SelectItem value="bruto">Peso Bruto (cru)</SelectItem>
+                  <SelectItem value="cozido">Peso Cozido</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
+
           <div className="flex flex-col mt-4">
             {ingredients.length > 0 && (
               <div className="mb-4">
-                <h4 className="font-semibold ">Ingredientes adicionados</h4>
+                <h4 className="font-semibold">Ingredientes adicionados</h4>
                 <ul className="list-disc pl-5 marker:text-gray-500">
                   {ingredients.map((ingredient, index) => (
-                    <li
-                      key={index}
-                      className="flex justify-between items-center"
-                    >
+                    <li key={index} className="flex justify-between items-center">
                       <span>
-                        -{" "}
-                        <span className="font-bold">
+                        - <span className="font-bold">
                           {ingredient.quantity} {ingredient.unit}
-                        </span>{" "}
-                        de {ingredient.name}
+                        </span> de {ingredient.name}
                       </span>
-                      <div className="flex gap">
+                      <div className="flex gap-2">
                         <Button
                           variant="ghost"
                           size="sm"
                           className="text-black"
                           onClick={() => handleEditIngredient(index)}
                         >
-                          <Pencil />
+                          <Pencil className="h-4 w-4" />
                         </Button>
-                        <Dialog>
-                          <DialogTrigger>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="text-red-500 hover:text-red-700"
-                            >
-                              <Trash />
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent>
-                            <DialogHeader>
-                              <DialogTitle>
-                                Deseja remover o ingrediente?
-                              </DialogTitle>
-                              <DialogDescription>
-                                Essa ação não poderá ser desfeita.
-                              </DialogDescription>
-                            </DialogHeader>
-                            <DialogFooter>
-                              <Button variant="secondary">Fechar</Button>
-                              <Button
-                                variant="destructive"
-                                onClick={() => {
-                                  setIngredients((prev) =>
-                                    prev.filter((_, i) => i !== index)
-                                  );
-                                  toast.success(
-                                    "Ingrediente removido com sucesso!"
-                                  );
-                                }}
-                              >
-                                Remover
-                              </Button>
-                            </DialogFooter>
-                          </DialogContent>
-                        </Dialog>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-red-500 hover:text-red-700"
+                          onClick={() => {
+                            setIngredients(prev => prev.filter((_, i) => i !== index));
+                            toast.success("Ingrediente removido com sucesso!");
+                          }}
+                        >
+                          <Trash className="h-4 w-4" />
+                        </Button>
                       </div>
                     </li>
                   ))}
@@ -207,105 +235,95 @@ const NewMenu = () => {
               </div>
             )}
           </div>
+
+       
           <div className="flex items-center justify-center">
             <Button
               variant="ghost"
               className="border border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-white transition-all duration-500"
               onClick={() => {
-                setEditingIngredient(null); // Redefine para adicionar um novo
-                setNewIngredient({ name: "", unit: "", quantity: "" }); // Limpa o formulário
-                openDialog();
+                setEditingIngredient(null);
+                setNewIngredient({
+                  name: "",
+                  unit: "",
+                  quantity: "",
+                  netWeight: "",
+                  correctionFactor: "",
+                  cookedWeight: "",
+                  cookingIndex: "",
+                  cost: "",
+                });
+                setIsOpen(true);
               }}
             >
-              <PlusCircle /> Adicionar ingrediente
+              <PlusCircle className="mr-2" /> Adicionar ingrediente
             </Button>
+
             <Dialog open={isOpen} onOpenChange={setIsOpen}>
-              <DialogTrigger asChild></DialogTrigger>
-              <DialogContent className="">
+              <DialogContent>
                 <DialogHeader>
                   <DialogTitle>
-                    {editingIngredient !== null
-                      ? "Editar ingrediente"
-                      : "Adicionar ingrediente"}
+                    {editingIngredient !== null ? "Editar ingrediente" : "Adicionar ingrediente"}
                   </DialogTitle>
                   <DialogDescription>
+                
                     <div className="flex w-full gap-4 mt-4 text-start">
                       <div className="flex w-full flex-col gap-2">
                         <Label>Ingrediente</Label>
-                        <Select
-                          value={newIngredient.name}
-                          onValueChange={(value) =>
-                            setNewIngredient({ ...newIngredient, name: value })
-                          }
-                        >
-                          <SelectTrigger className="">
+                        <Select value={newIngredient.name} onValueChange={handleIngredientSelect}>
+                          <SelectTrigger>
                             <SelectValue placeholder="Selecionar ingrediente" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="Arroz">Arroz</SelectItem>
-                            <SelectItem value="Feijão">Feijão</SelectItem>
-                            <SelectItem value="Macarrão">Macarrão</SelectItem>
+                            {ingredientsRecipe.map((ingredient) => (
+                              <SelectItem key={ingredient.id} value={ingredient.name}>
+                                {ingredient.name}
+                              </SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
                       </div>
                       <div className="flex w-full flex-col gap-2">
                         <Label>Unidade de medida</Label>
-                        <Select
-                          value={newIngredient.unit}
-                          onValueChange={(value) =>
-                            setNewIngredient({ ...newIngredient, unit: value })
-                          }
-                        >
-                          <SelectTrigger className="">
-                            <SelectValue placeholder="Selecionar medida" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Kg">Quilogramas (Kg)</SelectItem>
-                            <SelectItem value="g">Gramas (g)</SelectItem>
-                            <SelectItem value="L">Litros (L)</SelectItem>
-                            <SelectItem value="ml">Mililitros (ml)</SelectItem>
-                          </SelectContent>
-                        </Select>
+                        <Input value={newIngredient.unit} disabled />
                       </div>
                     </div>
+
+            
                     <div className="flex w-full gap-4 mt-4 text-start">
                       <div className="flex w-full flex-col gap-2">
                         <Label>Peso bruto</Label>
                         <Input
                           value={newIngredient.quantity}
-                          onChange={(e) =>
-                            setNewIngredient({
-                              ...newIngredient,
-                              quantity: e.target.value,
-                            })
-                          }
+                          onChange={handleWeightChange}
+                          type="number"
                         />
                       </div>
                       <div className="flex w-full flex-col gap-2">
                         <Label>Peso líquido</Label>
-                        <Input placeholder="" />
+                        <Input value={newIngredient.netWeight} disabled />
                       </div>
                     </div>
 
                     <div className="flex w-full gap-4 mt-4 text-start">
                       <div className="flex w-full flex-col gap-2">
                         <Label>Fator de correção</Label>
-                        <Input placeholder="" />
+                        <Input value={newIngredient.correctionFactor} disabled />
                       </div>
                       <div className="flex w-full flex-col gap-2">
                         <Label>Peso cozido</Label>
-                        <Input placeholder="" />
+                        <Input value={newIngredient.cookedWeight} disabled />
                       </div>
                     </div>
 
                     <div className="flex w-full gap-4 mt-4 text-start">
                       <div className="flex w-full flex-col gap-2">
-                        <Label>Indíce de cocção</Label>
-                        <Input placeholder="" />
+                        <Label>Índice de cocção</Label>
+                        <Input value={newIngredient.cookingIndex} disabled />
                       </div>
                       <div className="flex w-full flex-col gap-2">
                         <Label>Custo ingrediente</Label>
-                        <Input placeholder="" />
+                        <Input value={newIngredient.cost} disabled />
                       </div>
                     </div>
                   </DialogDescription>
@@ -315,7 +333,7 @@ const NewMenu = () => {
                     className="bg-orange-500 hover:bg-orange-600 font-bold"
                     onClick={saveIngredient}
                   >
-                    Adicionar
+                    {editingIngredient !== null ? "Atualizar" : "Adicionar"}
                   </Button>
                 </DialogFooter>
               </DialogContent>
@@ -323,37 +341,11 @@ const NewMenu = () => {
           </div>
         </div>
 
+   
         <div className="flex w-full flex-col gap-2">
           <div className="flex flex-col">
-            <Label className="text-base mb-2 font-semibold">
-              Modo de preparo
-            </Label>
-            <Card>
-              <div className="flex gap-2">
-                <ToggleGroup type="multiple">
-                  <ToggleGroupItem value="bold" aria-label="Toggle bold">
-                    <Bold className="h-4 w-4" />
-                  </ToggleGroupItem>
-                  <ToggleGroupItem value="italic" aria-label="Toggle italic">
-                    <Italic className="h-4 w-4" />
-                  </ToggleGroupItem>
-                  <ToggleGroupItem
-                    value="underline"
-                    aria-label="Toggle underline"
-                  >
-                    <Strikethrough className="h-4 w-4" />
-                  </ToggleGroupItem>
-                  <ToggleGroupItem value="list" aria-label="Toggle list">
-                    <List className="h-4 w-4" />
-                  </ToggleGroupItem>
-                  <ToggleGroupItem value="quote" aria-label="Toggle quote">
-                    <Code2 className="h-4 w-4" />
-                  </ToggleGroupItem>
-                  <ToggleGroupItem value="code" aria-label="Toggle code">
-                    <Quote className="h-4 w-4" />
-                  </ToggleGroupItem>
-                </ToggleGroup>
-              </div>
+            <Label className="text-base mb-2 font-semibold">Modo de preparo</Label>
+            <Card className="p-4">
               <Textarea
                 className="w-full"
                 rows={6}
@@ -361,55 +353,29 @@ const NewMenu = () => {
               />
             </Card>
           </div>
+
           <div className="flex flex-col mt-2">
             <Label className="text-base mb-2 font-semibold">
-              Utensílios e equipamentos{" "}
-              <small className="font-normal">(Opcional)</small>
+              Utensílios e equipamentos <small className="font-normal">(Opcional)</small>
             </Label>
-            <Card>
-              <div className="flex gap-2">
-                <ToggleGroup type="multiple">
-                  <ToggleGroupItem value="bold" aria-label="Toggle bold">
-                    <Bold className="h-4 w-4" />
-                  </ToggleGroupItem>
-                  <ToggleGroupItem value="italic" aria-label="Toggle italic">
-                    <Italic className="h-4 w-4" />
-                  </ToggleGroupItem>
-                  <ToggleGroupItem
-                    value="underline"
-                    aria-label="Toggle underline"
-                  >
-                    <Strikethrough className="h-4 w-4" />
-                  </ToggleGroupItem>
-                  <ToggleGroupItem value="list" aria-label="Toggle list">
-                    <List className="h-4 w-4" />
-                  </ToggleGroupItem>
-                  <ToggleGroupItem value="quote" aria-label="Toggle quote">
-                    <Code2 className="h-4 w-4" />
-                  </ToggleGroupItem>
-                  <ToggleGroupItem value="code" aria-label="Toggle code">
-                    <Quote className="h-4 w-4" />
-                  </ToggleGroupItem>
-                </ToggleGroup>
-              </div>
+            <Card className="p-4">
               <Textarea
                 className="w-full"
                 rows={6}
-                placeholder="Descreva como você prepara a sua receita..."
+                placeholder="Liste os utensílios necessários..."
               />
             </Card>
           </div>
+
           <div className="flex justify-center md:justify-end mt-4">
             <Button
               variant="outline"
-              className=" flex w-[300px] md:w-[200px] bg-orange-500 hover:bg-orange-600 text-white hover:text-white font-bold"
+              className="flex w-[300px] md:w-[200px] bg-orange-500 hover:bg-orange-600 text-white hover:text-white font-bold"
             >
-              <Plus /> Salvar cardápio
+              <Plus className="mr-2" /> Salvar cardápio
             </Button>
           </div>
         </div>
-        <div className="flex"></div>
-        {/* <Card className="w-full p-4"></Card> */}
       </div>
     </div>
   );
