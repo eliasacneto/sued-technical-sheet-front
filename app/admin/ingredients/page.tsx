@@ -1,9 +1,9 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { ToastContainer, toast } from "react-toastify";
-import 'react-toastify/dist/ReactToastify.css';
+import "react-toastify/dist/ReactToastify.css";
 import { useState } from "react";
-import { ingredientsData  as initialIngredients} from "../../mock/ingredients.mock";
+import { ingredientsData as initialIngredients } from "../../mock/ingredients.mock";
 
 import React from "react";
 
@@ -23,7 +23,7 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogFooter
+  DialogFooter,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
@@ -31,61 +31,26 @@ import { Card, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 
-// const invoices = [
-//   {
-//     invoice: "INV001",
-//     paymentStatus: "Paid",
-//     totalAmount: "250",
-//     paymentMethod: "Credit Card",
-//   },
-//   {
-//     invoice: "INV001",
-//     paymentStatus: "Paid",
-//     totalAmount: "250",
-//     paymentMethod: "Credit Card",
-//   },
-//   {
-//     invoice: "INV002",
-//     paymentStatus: "Pending",
-//     totalAmount: "150",
-//     paymentMethod: "PayPal",
-//   },
-//   {
-//     invoice: "INV003",
-//     paymentStatus: "Unpaid",
-//     totalAmount: "350",
-//     paymentMethod: "Bank Transfer",
-//   },
-//   {
-//     invoice: "INV004",
-//     paymentStatus: "Paid",
-//     totalAmount: "450",
-//     paymentMethod: "Credit Card",
-//   },
-//   {
-//     invoice: "INV005",
-//     paymentStatus: "Paid",
-//     totalAmount: "550",
-//     paymentMethod: "PayPal",
-//   },
-//   {
-//     invoice: "INV006",
-//     paymentStatus: "Pending",
-//     totalAmount: "200",
-//     paymentMethod: "Bank Transfer",
-//   },
-//   {
-//     invoice: "INV007",
-//     paymentStatus: "Unpaid",
-//     totalAmount: "300",
-//     paymentMethod: "Credit Card",
-//   },
-// ];
-
+interface Ingredient {
+  id: number;
+  name: string;
+  pb: number;
+  fc: number | null;
+  pl: number | null;
+  kcal: number | null;
+  ptn: number | null;
+  cho: number | null;
+  lpd: number | null;
+  vitA: number | null;
+  vitC: number | null;
+  calcio: number | null;
+  ferro: number | null;
+}
 const Ingredients = () => {
-  const [ingredientsData, setIngredientsData]= useState(initialIngredients);
-  // const [ingredients, setIngredients] = useState([]);
-  const [newIngredient, setNewIngredient] = useState({
+  const [ingredientsData, setIngredientsData] =
+    useState<Ingredient[]>(initialIngredients);
+  const [newIngredient, setNewIngredient] = useState<Ingredient>({
+    id: 0,
     name: "",
     pb: 0,
     fc: null,
@@ -100,6 +65,8 @@ const Ingredients = () => {
     ferro: null,
   });
 
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
 
@@ -110,23 +77,27 @@ const Ingredients = () => {
   };
 
   const saveIngredient = () => {
-    
     if (!newIngredient.name) {
       toast.error("Nome do ingrediente é obrigatório");
       return;
     }
 
-    const ingredient = {
+    const ingredient: Ingredient = {
       ...newIngredient,
       id: ingredientsData.length + 1,
     };
 
-
-    setIngredientsData(prevIngredientsData => [...prevIngredientsData, ingredient]);
+    // Explicitly type the update function
+    setIngredientsData((prevIngredients: Ingredient[]) => [
+      ...prevIngredients,
+      ingredient,
+    ]);
 
     toast.success("Ingrediente cadastrado com sucesso!");
 
+    // Reset the new ingredient state
     setNewIngredient({
+      id: 0,
       name: "",
       pb: 0,
       fc: null,
@@ -143,43 +114,20 @@ const Ingredients = () => {
     setIsOpen(false);
   };
 
-
-  const [isOpen, setIsOpen] = useState(false);
-
-  const notify = () =>
-    toast.success("Cadastro feito com sucesso!", {
-      position: "bottom-right",
-      autoClose: 2500,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: "light",
-    });
-
-  // const validateIngredient = (ingredient: typeof newIngredient) => {
-  //   if (!ingredient.name || !ingredient.unit || !ingredient.quantity) {
-  //     return "Preencha todos os campos obrigatórios.";
-  //   }
-  //   return null;
-  // };
-
-
-
   return (
     <div className="flex flex-col justify-start gap-4 ">
       <h1 className="font-bold text-xl">Ingredientes </h1>
       <div className="flex justify-end">
         {/* <Link href="/admin/menus/new"> */}
-        <Button className="bg-orange-500 hover:bg-orange-600 font-bold"
+        <Button
+          className="bg-orange-500 hover:bg-orange-600 font-bold"
           onClick={() => setIsOpen(true)}
         >
-            + Novo ingrediente
-          </Button>
+          + Novo ingrediente
+        </Button>
         {/* </Link> */}
         <ToastContainer />
-      {/*teste*/}
+        {/*teste*/}
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
           <DialogContent className="sm:max-w-[600px]">
             <DialogHeader>
@@ -202,7 +150,7 @@ const Ingredients = () => {
                   <Input
                     name="pb"
                     type="number"
-                    value={newIngredient.pb || ''}
+                    value={newIngredient.pb || ""}
                     onChange={handleInputChange}
                     placeholder="Digite o peso bruto"
                   />
@@ -212,7 +160,7 @@ const Ingredients = () => {
                   <Input
                     name="fc"
                     type="number"
-                    value={newIngredient.fc || ''}
+                    value={newIngredient.fc || ""}
                     onChange={handleInputChange}
                     placeholder="Fator de correção"
                   />
@@ -222,7 +170,7 @@ const Ingredients = () => {
                   <Input
                     name="pl"
                     type="number"
-                    value={newIngredient.pl || ''}
+                    value={newIngredient.pl || ""}
                     onChange={handleInputChange}
                     placeholder="Peso líquido"
                   />
@@ -232,7 +180,7 @@ const Ingredients = () => {
                   <Input
                     name="kcal"
                     type="number"
-                    value={newIngredient.kcal || ''}
+                    value={newIngredient.kcal || ""}
                     onChange={handleInputChange}
                     placeholder="Calorias"
                   />
@@ -242,7 +190,7 @@ const Ingredients = () => {
                   <Input
                     name="ptn"
                     type="number"
-                    value={newIngredient.ptn || ''}
+                    value={newIngredient.ptn || ""}
                     onChange={handleInputChange}
                     placeholder="Proteína"
                   />
@@ -252,7 +200,7 @@ const Ingredients = () => {
                   <Input
                     name="cho"
                     type="number"
-                    value={newIngredient.cho || ''}
+                    value={newIngredient.cho || ""}
                     onChange={handleInputChange}
                     placeholder="Carboidratos"
                   />
@@ -262,7 +210,7 @@ const Ingredients = () => {
                   <Input
                     name="lpd"
                     type="number"
-                    value={newIngredient.lpd || ''}
+                    value={newIngredient.lpd || ""}
                     onChange={handleInputChange}
                     placeholder="Lipídios"
                   />
@@ -272,7 +220,7 @@ const Ingredients = () => {
                   <Input
                     name="vitA"
                     type="number"
-                    value={newIngredient.vitA || ''}
+                    value={newIngredient.vitA || ""}
                     onChange={handleInputChange}
                     placeholder="Vitamina A"
                   />
@@ -282,7 +230,7 @@ const Ingredients = () => {
                   <Input
                     name="vitC"
                     type="number"
-                    value={newIngredient.vitC || ''}
+                    value={newIngredient.vitC || ""}
                     onChange={handleInputChange}
                     placeholder="Vitamina C"
                   />
@@ -292,7 +240,7 @@ const Ingredients = () => {
                   <Input
                     name="calcio"
                     type="number"
-                    value={newIngredient.calcio || ''}
+                    value={newIngredient.calcio || ""}
                     onChange={handleInputChange}
                     placeholder="Cálcio"
                   />
@@ -302,7 +250,7 @@ const Ingredients = () => {
                   <Input
                     name="ferro"
                     type="number"
-                    value={newIngredient.ferro || ''}
+                    value={newIngredient.ferro || ""}
                     onChange={handleInputChange}
                     placeholder="Ferro"
                   />
