@@ -133,22 +133,22 @@ const Stock = () => {
                   Ingredientes
                 </TableHead>
                 <TableHead className="font-bold">Marca</TableHead>
-                <TableHead className="font-bold">Unid. Min.</TableHead>
-                <TableHead className="font-bold">Preço Unit.</TableHead>
-                <TableHead className="font-bold">Est. total</TableHead>
-                <TableHead className="font-bold">Inves. Total</TableHead>
+                <TableHead className="font-bold">Unidade Medida</TableHead>
+                <TableHead className="font-bold">Quantidade</TableHead>
+                <TableHead className="font-bold">Preço Unitário</TableHead>
+                <TableHead className="font-bold">Investimento Total</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {stock?.map((invoice) => (
-                <TableRow key={invoice.id}>
-                  <TableCell className="font-medium">{invoice.name}</TableCell>
-                  <TableCell>{invoice.brand}</TableCell>
-                  <TableCell> {invoice.unitSize}</TableCell>
-                  <TableCell> {invoice.unitPrice}</TableCell>
-                  <TableCell> {invoice.totalStock}</TableCell>
-                  <TableCell> {invoice.totalInvestment}</TableCell>
-                  <TableCell className="text-right"></TableCell>
+              {stock?.map((stock) => (
+                <TableRow key={stock.id}>
+                  <TableCell className="font-medium">{stock.name}</TableCell>
+                  <TableCell>{stock.brand}</TableCell>
+                  <TableCell> {stock.unitSize}</TableCell>
+                  <TableCell> {stock.totalStock}</TableCell>
+                  <TableCell> R${stock.unitPrice}</TableCell>
+                  <TableCell> R${stock.totalInvestment}</TableCell>
+                  {/* <TableCell className="text-right"></TableCell> */}
                 </TableRow>
               ))}
             </TableBody>

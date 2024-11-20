@@ -53,7 +53,7 @@ const Sidenav = () => {
                   <SheetDescription className="text-base"></SheetDescription>
 
                   <ul className="antialiased flex flex-col md:flex-col gap-3 mt-4">
-                    <li>
+                    {/* <li>
                       <small className="flex gap-2 mb-3">Dashboard</small>
                       <Link
                         className="hover:bg-orange-500 hover:text-white transition-all duration-500 ease-in-out rounded-md p-3 font-semibold text-slate-800 text-sm flex gap-2"
@@ -63,7 +63,7 @@ const Sidenav = () => {
                           <LayoutDashboard size={18} /> Visão geral
                         </SheetClose>
                       </Link>
-                    </li>
+                    </li> */}
                     <li className="flex flex-col">
                       <small className="flex gap-2 mb-3">Ficha técnica</small>
                       <Link
@@ -117,7 +117,7 @@ const Sidenav = () => {
 
         <div className="hidden md:flex md:flex-col ml-4  bg-gray-50 mt-8">
           <ul className="antialiased flex md:flex-col gap-3">
-            <li>
+            {/* <li>
               <small className="flex gap-2 mb-3">Dashboard</small>
               <Link
                 className="hover:bg-orange-500 hover:text-white transition-all duration-500 ease-in-out rounded-md p-3 font-semibold text-slate-800 text-sm flex gap-2"
@@ -125,7 +125,7 @@ const Sidenav = () => {
               >
                 <LayoutDashboard size={18} /> Visão geral
               </Link>
-            </li>
+            </li> */}
             <li className="flex flex-col">
               <small className="flex gap-2 mb-3">Ficha técnica</small>
               <Link
