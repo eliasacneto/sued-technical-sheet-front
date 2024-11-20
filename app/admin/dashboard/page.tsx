@@ -29,7 +29,7 @@ import {
 } from "lucide-react";
 
 import { recipes } from "../../mock/recipes.mock";
-import { ingredients } from "../../mock/ingredients.mock";
+
 import { stock } from "../../mock/stock.mock";
 
 const Dashboard = () => {
@@ -39,7 +39,7 @@ const Dashboard = () => {
 
   // Get the total number of recipes
   const totalRecipes = recipes.length;
-  const totalIngredients = ingredients.length;
+
   const totalStock = stock.length;
 
   return (
