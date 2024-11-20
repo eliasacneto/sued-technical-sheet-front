@@ -1,8 +1,9 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import { ingredients } from "../../mock/ingredients.mock";
+import 'react-toastify/dist/ReactToastify.css';
+import { useState } from "react";
+import { ingredientsData  as initialIngredients} from "../../mock/ingredients.mock";
 
 import React from "react";
 
@@ -22,11 +23,12 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
+  DialogFooter
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { Card, CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
 import Link from "next/link";
 
 // const invoices = [
@@ -81,6 +83,69 @@ import Link from "next/link";
 // ];
 
 const Ingredients = () => {
+  const [ingredientsData, setIngredientsData]= useState(initialIngredients);
+  // const [ingredients, setIngredients] = useState([]);
+  const [newIngredient, setNewIngredient] = useState({
+    name: "",
+    pb: 0,
+    fc: null,
+    pl: null,
+    kcal: null,
+    ptn: null,
+    cho: null,
+    lpd: null,
+    vitA: null,
+    vitC: null,
+    calcio: null,
+    ferro: null,
+  });
+
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target;
+
+    setNewIngredient((prev) => ({
+      ...prev,
+      [name]: name === "name" ? value : value === "" ? null : Number(value),
+    }));
+  };
+
+  const saveIngredient = () => {
+    
+    if (!newIngredient.name) {
+      toast.error("Nome do ingrediente é obrigatório");
+      return;
+    }
+
+    const ingredient = {
+      ...newIngredient,
+      id: ingredientsData.length + 1,
+    };
+
+
+    setIngredientsData(prevIngredientsData => [...prevIngredientsData, ingredient]);
+
+    toast.success("Ingrediente cadastrado com sucesso!");
+
+    setNewIngredient({
+      name: "",
+      pb: 0,
+      fc: null,
+      pl: null,
+      kcal: null,
+      ptn: null,
+      cho: null,
+      lpd: null,
+      vitA: null,
+      vitC: null,
+      calcio: null,
+      ferro: null,
+    });
+    setIsOpen(false);
+  };
+
+
+  const [isOpen, setIsOpen] = useState(false);
+
   const notify = () =>
     toast.success("Cadastro feito com sucesso!", {
       position: "bottom-right",
@@ -93,17 +158,170 @@ const Ingredients = () => {
       theme: "light",
     });
 
+  // const validateIngredient = (ingredient: typeof newIngredient) => {
+  //   if (!ingredient.name || !ingredient.unit || !ingredient.quantity) {
+  //     return "Preencha todos os campos obrigatórios.";
+  //   }
+  //   return null;
+  // };
+
+
+
   return (
     <div className="flex flex-col justify-start gap-4 ">
       <h1 className="font-bold text-xl">Ingredientes </h1>
       <div className="flex justify-end">
-        <Link href="/admin/menus/new">
-          <Button className="bg-orange-500 hover:bg-orange-600 font-bold">
+        {/* <Link href="/admin/menus/new"> */}
+        <Button className="bg-orange-500 hover:bg-orange-600 font-bold"
+          onClick={() => setIsOpen(true)}
+        >
             + Novo ingrediente
           </Button>
-        </Link>
+        {/* </Link> */}
         <ToastContainer />
+      {/*teste*/}
+        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+          <DialogContent className="sm:max-w-[600px]">
+            <DialogHeader>
+              <DialogTitle>Cadastrar Novo Ingrediente</DialogTitle>
+            </DialogHeader>
+
+            <DialogDescription>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex flex-col gap-2">
+                  <Label>Nome do Ingrediente</Label>
+                  <Input
+                    name="name"
+                    value={newIngredient.name}
+                    onChange={handleInputChange}
+                    placeholder="Digite o nome do ingrediente"
+                  />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <Label>Peso Bruto (PB)</Label>
+                  <Input
+                    name="pb"
+                    type="number"
+                    value={newIngredient.pb || ''}
+                    onChange={handleInputChange}
+                    placeholder="Digite o peso bruto"
+                  />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <Label>Fator de Correção (FC)</Label>
+                  <Input
+                    name="fc"
+                    type="number"
+                    value={newIngredient.fc || ''}
+                    onChange={handleInputChange}
+                    placeholder="Fator de correção"
+                  />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <Label>Peso Líquido (PL)</Label>
+                  <Input
+                    name="pl"
+                    type="number"
+                    value={newIngredient.pl || ''}
+                    onChange={handleInputChange}
+                    placeholder="Peso líquido"
+                  />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <Label>Calorias (Kcal)</Label>
+                  <Input
+                    name="kcal"
+                    type="number"
+                    value={newIngredient.kcal || ''}
+                    onChange={handleInputChange}
+                    placeholder="Calorias"
+                  />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <Label>Proteína (PTN)</Label>
+                  <Input
+                    name="ptn"
+                    type="number"
+                    value={newIngredient.ptn || ''}
+                    onChange={handleInputChange}
+                    placeholder="Proteína"
+                  />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <Label>Carboidratos (CHO)</Label>
+                  <Input
+                    name="cho"
+                    type="number"
+                    value={newIngredient.cho || ''}
+                    onChange={handleInputChange}
+                    placeholder="Carboidratos"
+                  />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <Label>Lipídios (LPD)</Label>
+                  <Input
+                    name="lpd"
+                    type="number"
+                    value={newIngredient.lpd || ''}
+                    onChange={handleInputChange}
+                    placeholder="Lipídios"
+                  />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <Label>Vitamina A</Label>
+                  <Input
+                    name="vitA"
+                    type="number"
+                    value={newIngredient.vitA || ''}
+                    onChange={handleInputChange}
+                    placeholder="Vitamina A"
+                  />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <Label>Vitamina C</Label>
+                  <Input
+                    name="vitC"
+                    type="number"
+                    value={newIngredient.vitC || ''}
+                    onChange={handleInputChange}
+                    placeholder="Vitamina C"
+                  />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <Label>Cálcio</Label>
+                  <Input
+                    name="calcio"
+                    type="number"
+                    value={newIngredient.calcio || ''}
+                    onChange={handleInputChange}
+                    placeholder="Cálcio"
+                  />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <Label>Ferro</Label>
+                  <Input
+                    name="ferro"
+                    type="number"
+                    value={newIngredient.ferro || ''}
+                    onChange={handleInputChange}
+                    placeholder="Ferro"
+                  />
+                </div>
+              </div>
+            </DialogDescription>
+
+            <DialogFooter>
+              <Button
+                className="bg-orange-500 hover:bg-orange-600 font-bold"
+                onClick={saveIngredient}
+              >
+                Salvar Ingrediente
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
+
       <div className="flex justify-start items-center w-[300px] gap-4">
         <Search size={16} />
         <Input placeholder="Pesquisar..."></Input>
@@ -133,7 +351,7 @@ const Ingredients = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {ingredients?.map((ingredients) => (
+              {ingredientsData?.map((ingredients) => (
                 <TableRow key={ingredients.id}>
                   <TableCell className="font-medium">
                     {ingredients.name}

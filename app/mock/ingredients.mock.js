@@ -1,4 +1,4 @@
-export const ingredients = [
+export const ingredientsData = [
     {
         id: 1,
         name: "Frango",
