@@ -121,37 +121,65 @@ const Ingredients = () => {
                 </TableHead>
                 <TableHead className="font-bold">Peso Bruto</TableHead>
                 <TableHead className="font-bold">Fator de Correção</TableHead>
-                <TableHead className="font-bold">Peso Liquido</TableHead>
+                <TableHead className="font-bold">Peso Líquido</TableHead>
                 <TableHead className="font-bold">Kcal</TableHead>
-                <TableHead className="font-bold">Proteina</TableHead>
-                <TableHead className="font-bold">carboidrato</TableHead>
+                <TableHead className="font-bold">Proteína</TableHead>
+                <TableHead className="font-bold">Carboidratos</TableHead>
                 <TableHead className="font-bold">Lipídios</TableHead>
                 <TableHead className="font-bold">Vit. A</TableHead>
                 <TableHead className="font-bold">Vit. C</TableHead>
-                <TableHead className="font-bold">Calcio</TableHead>
                 <TableHead className="font-bold">Cálcio</TableHead>
+                <TableHead className="font-bold">Ferro</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {ingredients?.map((invoice) => (
-                <TableRow key={invoice.id}>
-                  <TableCell className="font-medium">{invoice.name}</TableCell>
-                  <TableCell className="font-medium">{invoice.pb}</TableCell>
-                  <TableCell className="font-medium"> {invoice.fc}</TableCell>
-                  <TableCell className="font-medium"> {invoice.pl}</TableCell>
-                  <TableCell className="font-medium"> {invoice.kcal}</TableCell>
-                  <TableCell className="font-medium"> {invoice.ptn}</TableCell>
-                  <TableCell className="font-medium"> {invoice.cho}</TableCell>
-                  <TableCell className="font-medium"> {invoice.lpd}</TableCell>
-                  <TableCell className="font-medium"> {invoice.vitA}</TableCell>
-                  <TableCell className="font-medium"> {invoice.vitC}</TableCell>
+              {ingredients?.map((ingredients) => (
+                <TableRow key={ingredients.id}>
                   <TableCell className="font-medium">
-                    {" "}
-                    {invoice.calcio}
+                    {ingredients.name}
+                  </TableCell>
+                  <TableCell className="font-medium">
+                    {ingredients.pb}
                   </TableCell>
                   <TableCell className="font-medium">
                     {" "}
-                    {invoice.ferro}
+                    {ingredients.fc}
+                  </TableCell>
+                  <TableCell className="font-medium">
+                    {" "}
+                    {ingredients.pl}
+                  </TableCell>
+                  <TableCell className="font-medium">
+                    {" "}
+                    {ingredients.kcal}
+                  </TableCell>
+                  <TableCell className="font-medium">
+                    {" "}
+                    {ingredients.ptn}
+                  </TableCell>
+                  <TableCell className="font-medium">
+                    {" "}
+                    {ingredients.cho}
+                  </TableCell>
+                  <TableCell className="font-medium">
+                    {" "}
+                    {ingredients.lpd}
+                  </TableCell>
+                  <TableCell className="font-medium">
+                    {" "}
+                    {ingredients.vitA}
+                  </TableCell>
+                  <TableCell className="font-medium">
+                    {" "}
+                    {ingredients.vitC}
+                  </TableCell>
+                  <TableCell className="font-medium">
+                    {" "}
+                    {ingredients.calcio}
+                  </TableCell>
+                  <TableCell className="font-medium">
+                    {" "}
+                    {ingredients.ferro}
                   </TableCell>
                   <TableCell className="text-right"></TableCell>
                 </TableRow>
