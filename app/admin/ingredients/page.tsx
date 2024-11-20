@@ -285,17 +285,17 @@ const Ingredients = () => {
                 <TableHead className="w-[200px] font-bold">
                   Ingrediente
                 </TableHead>
-                <TableHead className="font-bold">Peso Bruto</TableHead>
+                <TableHead className="font-bold">Peso Bruto(g)</TableHead>
                 <TableHead className="font-bold">Fator de Correção</TableHead>
-                <TableHead className="font-bold">Peso Líquido</TableHead>
+                <TableHead className="font-bold">Peso Líquido(g)</TableHead>
                 <TableHead className="font-bold">Kcal</TableHead>
-                <TableHead className="font-bold">Proteína</TableHead>
-                <TableHead className="font-bold">Carboidratos</TableHead>
-                <TableHead className="font-bold">Lipídios</TableHead>
-                <TableHead className="font-bold">Vit. A</TableHead>
-                <TableHead className="font-bold">Vit. C</TableHead>
-                <TableHead className="font-bold">Cálcio</TableHead>
-                <TableHead className="font-bold">Ferro</TableHead>
+                <TableHead className="font-bold">Proteína(g)</TableHead>
+                <TableHead className="font-bold">Carboidratos(g)</TableHead>
+                <TableHead className="font-bold">Lipídios(g)</TableHead>
+                <TableHead className="font-bold">Vit.A(mcg)</TableHead>
+                <TableHead className="font-bold">Vit.C(mg)</TableHead>
+                <TableHead className="font-bold">Cálcio(mg)</TableHead>
+                <TableHead className="font-bold">Ferro(g)</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
