@@ -28,26 +28,25 @@ import {
   Utensils,
 } from "lucide-react";
 
+import { recipes } from "../../mock/recipes.mock";
+import { ingredients } from "../../mock/ingredients.mock";
+import { stock } from "../../mock/stock.mock";
+
 const Dashboard = () => {
+  //   const totalIngredients = new Set(
+  //     recipes.flatMap((recipe) => recipe.ingredients.map((ing) => ing.name))
+  //   ).size;
+
+  // Get the total number of recipes
+  const totalRecipes = recipes.length;
+  const totalIngredients = ingredients.length;
+  const totalStock = stock.length;
+
   return (
     <>
       <div className="flex flex-col justify-start gap-4 ">
         <h1 className="font-bold text-xl">Visão Geral </h1>
         <div className="flex gap-4">
-          <Card className="w-[300px]">
-            <CardHeader>
-              <CardTitle className="flex justify-between gap-4">
-                <h3 className="font-normal">Cardápios</h3>
-                <small>
-                  <Utensils size={18} />
-                </small>
-              </CardTitle>
-              <CardDescription>
-                <h1 className="text-2xl font-bold">7</h1>
-              </CardDescription>
-            </CardHeader>
-          </Card>
-
           <Card className="w-[300px]">
             <CardHeader>
               <CardTitle className="flex justify-between gap-4">
@@ -57,12 +56,12 @@ const Dashboard = () => {
                 </small>
               </CardTitle>
               <CardDescription>
-                <h1 className="text-2xl font-bold">59</h1>
+                <h1 className="text-2xl font-bold">{totalRecipes}</h1>
               </CardDescription>
             </CardHeader>
           </Card>
 
-          <Card className="w-[300px]">
+          {/* <Card className="w-[300px]">
             <CardHeader>
               <CardTitle className="flex justify-between gap-4">
                 <h3 className="font-normal">Ingredientes</h3>
@@ -71,10 +70,10 @@ const Dashboard = () => {
                 </small>
               </CardTitle>
               <CardDescription>
-                <h1 className="text-2xl font-bold">147</h1>
+                <h1 className="text-2xl font-bold">{totalIngredients}</h1>
               </CardDescription>
             </CardHeader>
-          </Card>
+          </Card> */}
 
           <Card className="w-[300px]">
             <CardHeader>
@@ -85,7 +84,7 @@ const Dashboard = () => {
                 </small>
               </CardTitle>
               <CardDescription>
-                <h1 className="text-2xl font-bold">1125</h1>
+                <h1 className="text-2xl font-bold">{totalStock}</h1>
               </CardDescription>
             </CardHeader>
           </Card>
