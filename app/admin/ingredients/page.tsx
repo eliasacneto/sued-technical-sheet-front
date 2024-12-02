@@ -2,8 +2,8 @@
 import { Button } from "@/components/ui/button";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useState } from "react";
-import { ingredientsData as initialIngredients } from "../../mock/ingredients.mock";
+import { useState, useEffect } from "react";
+
 
 import React from "react";
 
@@ -30,89 +30,118 @@ import { Search } from "lucide-react";
 import { Card, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
+import { informationError } from "@/components/informationError";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { api } from "@/connect/api";
+
 
 interface Ingredient {
-  id: number;
-  name: string;
-  pb: number;
-  fc: number | null;
-  pl: number | null;
+  id?: number;
+  description: string;
+  legend_type?: string;
+  gross_weight: number;
+  correction_factor: number | null;
+  cooked_weight: number | null;
+  cooking_index: number | null;
   kcal: number | null;
-  ptn: number | null;
-  cho: number | null;
-  lpd: number | null;
-  vitA: number | null;
-  vitC: number | null;
-  calcio: number | null;
-  ferro: number | null;
+  kj: number | null;
+  protein: number | null;
+  lipids: number | null;
+  carbohydrate: number | null;
+  calcium: number | null;
+  iron: number | null;
+  retinol: number | null;
+  vitaminC: number | null;
+  sodium: number | null;
 }
 const Ingredients = () => {
-  const [ingredientsData, setIngredientsData] =
-    useState<Ingredient[]>(initialIngredients);
+  const [isOpen, setIsOpen] = useState(false);
   const [newIngredient, setNewIngredient] = useState<Ingredient>({
-    id: 0,
-    name: "",
-    pb: 0,
-    fc: null,
-    pl: null,
+    description: "",
+    gross_weight: 100,
+    correction_factor: null,
+    cooked_weight: null,
+    cooking_index: null,
     kcal: null,
-    ptn: null,
-    cho: null,
-    lpd: null,
-    vitA: null,
-    vitC: null,
-    calcio: null,
-    ferro: null,
+    kj: null,
+    protein: null,
+    lipids: null,
+    carbohydrate: null,
+    calcium: null,
+    iron: null,
+    retinol: null,
+    vitaminC: null,
+    sodium: null,
   });
+  const [ingredientsData, setIngredientsData] = useState<Ingredient[]>([]);
+  const [loading, setLoading] = useState<boolean>(false)
+  const [error, setError] = useState(null)
+  const [search, setSearch] = useState<string>("")
 
-  const [isOpen, setIsOpen] = useState<boolean>(false);
 
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = event.target;
-
-    setNewIngredient((prev) => ({
-      ...prev,
-      [name]: name === "name" ? value : value === "" ? null : Number(value),
-    }));
-  };
-
-  const saveIngredient = () => {
-    if (!newIngredient.name) {
-      toast.error("Nome do ingrediente é obrigatório");
-      return;
+  useEffect(() => {
+    if (search.length > 2) {
+      fetchData();
+    } else {
+      fetchData();
     }
+  }, [search]);
 
-    const ingredient: Ingredient = {
-      ...newIngredient,
-      id: ingredientsData.length + 1,
-    };
+  // Modificação no fetchData para não precisar passar o evento
+  const fetchData = async () => {
+    setLoading(true);
+    setError(null);
 
-    // Explicitly type the update function
-    setIngredientsData((prevIngredients: Ingredient[]) => [
-      ...prevIngredients,
-      ingredient,
-    ]);
+    try {
+      const response = search.length > 2
+        ? await api.get(`/ingredients/search/${search}`)
+        : await api.get("/ingredients");
 
-    toast.success("Ingrediente cadastrado com sucesso!");
-
-    // Reset the new ingredient state
-    setNewIngredient({
-      id: 0,
-      name: "",
-      pb: 0,
-      fc: null,
-      pl: null,
-      kcal: null,
-      ptn: null,
-      cho: null,
-      lpd: null,
-      vitA: null,
-      vitC: null,
-      calcio: null,
-      ferro: null,
-    });
-    setIsOpen(false);
+      setIngredientsData(response.data.data);
+    } catch (error) {
+      informationError(error);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  console.log(ingredientsData)
+  console.log('eeeeeeeeeeeee', search)
+
+
+
+  const handleCreateIngredient = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setLoading(true);
+    setError(null);
+    try {
+      await api.post('/ingredients', newIngredient);
+      setNewIngredient({
+        description: "",
+        gross_weight: 100,
+        correction_factor: null,
+        cooked_weight: null,
+        cooking_index: null,
+        kcal: null,
+        kj: null,
+        protein: null,
+        lipids: null,
+        carbohydrate: null,
+        calcium: null,
+        iron: null,
+        retinol: null,
+        vitaminC: null,
+        sodium: null,
+      });
+      await api.get("/ingredients");
+    } catch (error) {
+      informationError(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
 
   return (
     <div className="flex flex-col justify-start gap-4 ">
@@ -130,149 +159,277 @@ const Ingredients = () => {
         {/*teste*/}
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
           <DialogContent className="sm:max-w-[600px]">
-            <DialogHeader>
-              <DialogTitle>Cadastrar Novo Ingrediente</DialogTitle>
-            </DialogHeader>
+            <form onSubmit={handleCreateIngredient}>
+              <DialogHeader>
+                <DialogTitle>Cadastrar Novo Ingrediente</DialogTitle>
+              </DialogHeader>
+              <DialogDescription>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-2">
+                    <Label>Nome do Ingrediente</Label>
+                    <Input
+                      name="name"
+                      value={newIngredient.description}
+                      onChange={(event) => {
+                        setNewIngredient({
+                          ...newIngredient,
+                          description: event.target.value,
+                        });
+                      }}
+                      placeholder="Digite o nome do ingrediente"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Label>Legenda (CD/FNDE nº 06/2020)</Label>
+                    <Select
+                      value={newIngredient.legend_type || ""}
+                      onValueChange={(value) => {
+                        setNewIngredient({
+                          ...newIngredient,
+                          legend_type: value
+                        });
+                      }}
+                    >
+                      <SelectTrigger className="p-2 border rounded">
+                        <SelectValue placeholder="Legenda" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Oferta limitada para todas as idades">
+                          Oferta limitada para todas as idades
+                        </SelectItem>
+                        <SelectItem value="Limitada para > 3 anos e proibida para ≤ 3 anos">
+                          Limitada para  `&gt;` 3 anos e proibida para ≤ 3 anos
+                        </SelectItem>
+                        <SelectItem value="Aquisição proibida">
+                          Aquisição proibida
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Label>Peso bruto(g)</Label>
+                    <Input
+                      name="gross_weight"
+                      type="number"
+                      value={newIngredient.gross_weight}
+                      disabled
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Label>Fator de Correção </Label>
+                    <Input
+                      name="correction_factor"
+                      type="text"
+                      value={newIngredient.correction_factor || ""}
+                      onChange={(event) => {
+                        setNewIngredient({
+                          ...newIngredient,
+                          correction_factor: parseFloat(event.target.value),
+                        });
+                      }}
 
-            <DialogDescription>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="flex flex-col gap-2">
-                  <Label>Nome do Ingrediente</Label>
-                  <Input
-                    name="name"
-                    value={newIngredient.name}
-                    onChange={handleInputChange}
-                    placeholder="Digite o nome do ingrediente"
-                  />
-                </div>
-                <div className="flex flex-col gap-2">
-                  <Label>Peso Bruto (PB)</Label>
-                  <Input
-                    name="pb"
-                    type="number"
-                    value={newIngredient.pb || ""}
-                    onChange={handleInputChange}
-                    placeholder="Digite o peso bruto"
-                  />
-                </div>
-                <div className="flex flex-col gap-2">
-                  <Label>Fator de Correção (FC)</Label>
-                  <Input
-                    name="fc"
-                    type="number"
-                    value={newIngredient.fc || ""}
-                    onChange={handleInputChange}
-                    placeholder="Fator de correção"
-                  />
-                </div>
-                <div className="flex flex-col gap-2">
-                  <Label>Peso Líquido (PL)</Label>
-                  <Input
-                    name="pl"
-                    type="number"
-                    value={newIngredient.pl || ""}
-                    onChange={handleInputChange}
-                    placeholder="Peso líquido"
-                  />
-                </div>
-                <div className="flex flex-col gap-2">
-                  <Label>Calorias (Kcal)</Label>
-                  <Input
-                    name="kcal"
-                    type="number"
-                    value={newIngredient.kcal || ""}
-                    onChange={handleInputChange}
-                    placeholder="Calorias"
-                  />
-                </div>
-                <div className="flex flex-col gap-2">
-                  <Label>Proteína (PTN)</Label>
-                  <Input
-                    name="ptn"
-                    type="number"
-                    value={newIngredient.ptn || ""}
-                    onChange={handleInputChange}
-                    placeholder="Proteína"
-                  />
-                </div>
-                <div className="flex flex-col gap-2">
-                  <Label>Carboidratos (CHO)</Label>
-                  <Input
-                    name="cho"
-                    type="number"
-                    value={newIngredient.cho || ""}
-                    onChange={handleInputChange}
-                    placeholder="Carboidratos"
-                  />
-                </div>
-                <div className="flex flex-col gap-2">
-                  <Label>Lipídios (LPD)</Label>
-                  <Input
-                    name="lpd"
-                    type="number"
-                    value={newIngredient.lpd || ""}
-                    onChange={handleInputChange}
-                    placeholder="Lipídios"
-                  />
-                </div>
-                <div className="flex flex-col gap-2">
-                  <Label>Vitamina A</Label>
-                  <Input
-                    name="vitA"
-                    type="number"
-                    value={newIngredient.vitA || ""}
-                    onChange={handleInputChange}
-                    placeholder="Vitamina A"
-                  />
-                </div>
-                <div className="flex flex-col gap-2">
-                  <Label>Vitamina C</Label>
-                  <Input
-                    name="vitC"
-                    type="number"
-                    value={newIngredient.vitC || ""}
-                    onChange={handleInputChange}
-                    placeholder="Vitamina C"
-                  />
-                </div>
-                <div className="flex flex-col gap-2">
-                  <Label>Cálcio</Label>
-                  <Input
-                    name="calcio"
-                    type="number"
-                    value={newIngredient.calcio || ""}
-                    onChange={handleInputChange}
-                    placeholder="Cálcio"
-                  />
-                </div>
-                <div className="flex flex-col gap-2">
-                  <Label>Ferro</Label>
-                  <Input
-                    name="ferro"
-                    type="number"
-                    value={newIngredient.ferro || ""}
-                    onChange={handleInputChange}
-                    placeholder="Ferro"
-                  />
-                </div>
-              </div>
-            </DialogDescription>
+                      placeholder="Digite o fator de correção"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Label>Peso Cozido </Label>
+                    <Input
+                      name="cooked_weight"
+                      type="text"
+                      value={newIngredient.cooked_weight || ""}
+                      onChange={(event) => {
+                        setNewIngredient({
+                          ...newIngredient,
+                          cooked_weight: parseFloat(event.target.value),
+                        });
+                      }}
 
-            <DialogFooter>
-              <Button
-                className="bg-orange-500 hover:bg-orange-600 font-bold"
-                onClick={saveIngredient}
-              >
-                Salvar Ingrediente
-              </Button>
-            </DialogFooter>
+                      placeholder="Digite o peso cozido"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Label>Índice de Cocção</Label>
+                    <Input
+                      name="cooking_index"
+                      type="text"
+                      value={newIngredient.cooking_index || ""}
+                      onChange={(event) => {
+                        setNewIngredient({
+                          ...newIngredient,
+                          cooking_index: parseFloat(event.target.value),
+                        });
+                      }}
+                      placeholder="Digite o indice Índice de cocção"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Label>Kcal</Label>
+                    <Input
+                      name="kcal"
+                      type="text"
+                      value={newIngredient.kcal || ""}
+                      onChange={(event) => {
+                        setNewIngredient({
+                          ...newIngredient,
+                          kcal: parseFloat(event.target.value),
+                        });
+                      }}
+                      placeholder="Digite o kcal"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Label>Kj</Label>
+                    <Input
+                      name="kj"
+                      type="text"
+                      value={newIngredient.kj || ""}
+                      onChange={(event) => {
+                        setNewIngredient({
+                          ...newIngredient,
+                          kj: parseFloat(event.target.value),
+                        });
+                      }}
+                      placeholder="Digite o kj"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Label>Proteínas</Label>
+                    <Input
+                      name="protein"
+                      type="text"
+                      value={newIngredient.protein || ""}
+                      onChange={(event) => {
+                        setNewIngredient({
+                          ...newIngredient,
+                          protein: parseFloat(event.target.value),
+                        });
+                      }}
+                      placeholder="Digite as proteínas"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Label>Lipídios</Label>
+                    <Input
+                      name="lipids"
+                      type="text"
+                      value={newIngredient.lipids || ""}
+                      onChange={(event) => {
+                        setNewIngredient({
+                          ...newIngredient,
+                          lipids: parseFloat(event.target.value),
+                        });
+                      }}
+                      placeholder="Digite os lipídios"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Label>Carboidratos</Label>
+                    <Input
+                      name="carbohydrate"
+                      type="text"
+                      value={newIngredient.carbohydrate || ""}
+                      onChange={(event) => {
+                        setNewIngredient({
+                          ...newIngredient,
+                          carbohydrate: parseFloat(event.target.value),
+                        });
+                      }}
+                      placeholder="Digite os carboidratos"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Label>Cálcio</Label>
+                    <Input
+                      name="calcium"
+                      type="text"
+                      value={newIngredient.calcium || ""}
+                      onChange={(event) => {
+                        setNewIngredient({
+                          ...newIngredient,
+                          calcium: parseFloat(event.target.value),
+                        });
+                      }}
+                      placeholder="Digite o cálcio"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Label>Ferro</Label>
+                    <Input
+                      name="iron"
+                      type="text"
+                      value={newIngredient.iron || ""}
+                      onChange={(event) => {
+                        setNewIngredient({
+                          ...newIngredient,
+                          iron: parseFloat(event.target.value),
+                        });
+                      }}
+                      placeholder="Digite o ferro"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Label>Retinol (vit. A)</Label>
+                    <Input
+                      name="retinol"
+                      type="text"
+                      value={newIngredient.retinol || ""}
+                      onChange={(event) => {
+                        setNewIngredient({
+                          ...newIngredient,
+                          retinol: parseFloat(event.target.value),
+                        });
+                      }}
+                      placeholder="Digite o retinol"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Label>Vit. C</Label>
+                    <Input
+                      name="vitaminC"
+                      type="text"
+                      value={newIngredient.vitaminC || ""}
+                      onChange={(event) => {
+                        setNewIngredient({
+                          ...newIngredient,
+                          vitaminC: parseFloat(event.target.value),
+                        });
+                      }}
+                      placeholder="Digite o vitamina C"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Label>Sódio</Label>
+                    <Input
+                      name="sodium"
+                      type="text"
+                      value={newIngredient.sodium || ""}
+                      onChange={(event) => {
+                        setNewIngredient({
+                          ...newIngredient,
+                          sodium: parseFloat(event.target.value),
+                        });
+                      }}
+                      placeholder="Digite o sódio"
+                    />
+                  </div>
+                </div>
+              </DialogDescription>
+
+              <DialogFooter>
+                <Button
+                  className="bg-orange-500 hover:bg-orange-600 font-bold"
+                >
+                  Salvar Ingrediente
+                </Button>
+              </DialogFooter>
+            </form>
           </DialogContent>
         </Dialog>
       </div>
 
       <div className="flex justify-start items-center w-[300px] gap-4">
         <Search size={16} />
-        <Input placeholder="Pesquisar..."></Input>
+        <Input onChange={(event) => setSearch(event.target.value)} placeholder="Pesquisar..."></Input>
       </div>
       <div className="flex">
         <Card className="w-full p-4">
@@ -285,35 +442,53 @@ const Ingredients = () => {
                 <TableHead className="w-[200px] font-bold">
                   Ingrediente
                 </TableHead>
-                <TableHead className="font-bold">Peso Bruto(g)</TableHead>
-                <TableHead className="font-bold">Fator de Correção</TableHead>
-                <TableHead className="font-bold">Peso Líquido(g)</TableHead>
+                <TableHead className="font-bold">Descrição</TableHead>
+                <TableHead className="font-bold">Legenda</TableHead>
+
+                <TableHead className="font-bold">PB(g)</TableHead>
+                <TableHead className="font-bold">FC</TableHead>
+                <TableHead className="font-bold">PC(g)</TableHead>
+                <TableHead className="font-bold">IC</TableHead>
+
                 <TableHead className="font-bold">Kcal</TableHead>
+                <TableHead className="font-bold">Kj</TableHead>
+
                 <TableHead className="font-bold">Proteína(g)</TableHead>
-                <TableHead className="font-bold">Carboidratos(g)</TableHead>
                 <TableHead className="font-bold">Lipídios(g)</TableHead>
-                <TableHead className="font-bold">Vit.A(mcg)</TableHead>
-                <TableHead className="font-bold">Vit.C(mg)</TableHead>
+                <TableHead className="font-bold">Carboidratos(g)</TableHead>
+
                 <TableHead className="font-bold">Cálcio(mg)</TableHead>
                 <TableHead className="font-bold">Ferro(g)</TableHead>
+                <TableHead className="font-bold">Vit.A(mcg)</TableHead>
+                <TableHead className="font-bold">Vit.C(mg)</TableHead>
+                <TableHead className="font-bold">Sódio(g)</TableHead>
+
               </TableRow>
             </TableHeader>
             <TableBody>
               {ingredientsData?.map((ingredients) => (
                 <TableRow key={ingredients.id}>
                   <TableCell className="font-medium">
-                    {ingredients.name}
+                    {ingredients.description}
                   </TableCell>
                   <TableCell className="font-medium">
-                    {ingredients.pb}
-                  </TableCell>
-                  <TableCell className="font-medium">
-                    {" "}
-                    {ingredients.fc}
+                    {ingredients.legend_type}
                   </TableCell>
                   <TableCell className="font-medium">
                     {" "}
-                    {ingredients.pl}
+                    {ingredients.gross_weight}
+                  </TableCell>
+                  <TableCell className="font-medium">
+                    {" "}
+                    {ingredients.correction_factor}
+                  </TableCell>
+                  <TableCell className="font-medium">
+                    {" "}
+                    {ingredients.cooked_weight}
+                  </TableCell>
+                  <TableCell className="font-medium">
+                    {" "}
+                    {ingredients.cooking_index}
                   </TableCell>
                   <TableCell className="font-medium">
                     {" "}
@@ -321,31 +496,39 @@ const Ingredients = () => {
                   </TableCell>
                   <TableCell className="font-medium">
                     {" "}
-                    {ingredients.ptn}
+                    {ingredients.kj}
                   </TableCell>
                   <TableCell className="font-medium">
                     {" "}
-                    {ingredients.cho}
+                    {ingredients.protein}
                   </TableCell>
                   <TableCell className="font-medium">
                     {" "}
-                    {ingredients.lpd}
+                    {ingredients.lipids}
                   </TableCell>
                   <TableCell className="font-medium">
                     {" "}
-                    {ingredients.vitA}
+                    {ingredients.carbohydrate}
                   </TableCell>
                   <TableCell className="font-medium">
                     {" "}
-                    {ingredients.vitC}
+                    {ingredients.calcium}
                   </TableCell>
                   <TableCell className="font-medium">
                     {" "}
-                    {ingredients.calcio}
+                    {ingredients.iron}
                   </TableCell>
                   <TableCell className="font-medium">
                     {" "}
-                    {ingredients.ferro}
+                    {ingredients.retinol}
+                  </TableCell>
+                  <TableCell className="font-medium">
+                    {" "}
+                    {ingredients.vitaminC}
+                  </TableCell>
+                  <TableCell className="font-medium">
+                    {" "}
+                    {ingredients.sodium}
                   </TableCell>
                   <TableCell className="text-right"></TableCell>
                 </TableRow>
@@ -356,24 +539,8 @@ const Ingredients = () => {
       </div>
     </div>
   );
-};
+}
 
 export default Ingredients;
 
-/**
- * {
-    id: 1,
-    name: "frango",
-    pb: 190.4,
-    fc: 2.38,
-    pl: 80,
-    kcal: 103.2,
-    ptn: 16.48,
-    cho: null,
-    lpd: 3.68,
-    vitA: 3.2,
-    vitC: null,
-    calcio: 5.6,
-    ferro: 0.4,
-  },
- */
+
