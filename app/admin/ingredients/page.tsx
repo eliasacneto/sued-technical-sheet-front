@@ -26,13 +26,14 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
+import { Search, Trash2 } from "lucide-react";
 import { Card, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { informationError } from "@/components/informationError";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { api } from "@/connect/api";
+import { Trash } from "lucide-react";
 
 
 interface Ingredient {
@@ -105,10 +106,14 @@ const Ingredients = () => {
     }
   };
 
-  console.log(ingredientsData)
-  console.log('eeeeeeeeeeeee', search)
-
-
+  const removeitem = async (id: number) => {
+    try {
+      await api.delete(`/ingredients/${id}`);
+      fetchData();
+    } catch (error) {
+      informationError(error);
+    }
+  };
 
   const handleCreateIngredient = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -133,13 +138,16 @@ const Ingredients = () => {
         vitaminC: null,
         sodium: null,
       });
-      await api.get("/ingredients");
+
+      fetchData();
     } catch (error) {
       informationError(error);
     } finally {
       setLoading(false);
     }
   };
+
+  console.log(ingredientsData)
 
 
 
@@ -439,9 +447,6 @@ const Ingredients = () => {
             </TableCaption>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[200px] font-bold">
-                  Ingrediente
-                </TableHead>
                 <TableHead className="font-bold">Descrição</TableHead>
                 <TableHead className="font-bold">Legenda</TableHead>
 
@@ -462,78 +467,76 @@ const Ingredients = () => {
                 <TableHead className="font-bold">Vit.A(mcg)</TableHead>
                 <TableHead className="font-bold">Vit.C(mg)</TableHead>
                 <TableHead className="font-bold">Sódio(g)</TableHead>
+                <TableHead className="font-bold">Acões</TableHead>
 
               </TableRow>
             </TableHeader>
             <TableBody>
               {ingredientsData?.map((ingredients) => (
                 <TableRow key={ingredients.id}>
-                  <TableCell className="font-medium">
-                    {ingredients.description}
+                
+                  <TableCell className="font-medium">{ingredients.description}</TableCell>
+
+              
+                  <TableCell className="font-medium">{ingredients.legend_type}</TableCell>
+
+              
+                  <TableCell className="font-medium">{ingredients.gross_weight}</TableCell>
+
+             
+                  <TableCell className="font-medium">{ingredients.correction_factor}</TableCell>
+
+              
+                  <TableCell className="font-medium">{ingredients.cooked_weight}</TableCell>
+
+        
+                  <TableCell className="font-medium">{ingredients.cooking_index}</TableCell>
+
+           
+                  <TableCell className="font-medium">{ingredients.kcal}</TableCell>
+
+       
+                  <TableCell className="font-medium">{ingredients.kj}</TableCell>
+
+   
+                  <TableCell className="font-medium">{ingredients.protein}</TableCell>
+
+ 
+                  <TableCell className="font-medium">{ingredients.lipids}</TableCell>
+
+               
+                  <TableCell className="font-medium">{ingredients.carbohydrate}</TableCell>
+
+              
+                  <TableCell className="font-medium">{ingredients.calcium}</TableCell>
+
+           
+                  <TableCell className="font-medium">{ingredients.iron}</TableCell>
+
+                
+                  <TableCell className="font-medium">{ingredients.retinol}</TableCell>
+
+           
+                  <TableCell className="font-medium">{ingredients.vitaminC}</TableCell>
+
+        
+                  <TableCell className="font-medium">{ingredients.sodium}</TableCell>
+
+   
+                  <TableCell className="font-medium text-center">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-red-500 hover:text-red-700"
+                      onClick={() => removeitem(ingredients.id)}
+                    >
+                      <Trash className="h-4 w-4" />
+                    </Button>
                   </TableCell>
-                  <TableCell className="font-medium">
-                    {ingredients.legend_type}
-                  </TableCell>
-                  <TableCell className="font-medium">
-                    {" "}
-                    {ingredients.gross_weight}
-                  </TableCell>
-                  <TableCell className="font-medium">
-                    {" "}
-                    {ingredients.correction_factor}
-                  </TableCell>
-                  <TableCell className="font-medium">
-                    {" "}
-                    {ingredients.cooked_weight}
-                  </TableCell>
-                  <TableCell className="font-medium">
-                    {" "}
-                    {ingredients.cooking_index}
-                  </TableCell>
-                  <TableCell className="font-medium">
-                    {" "}
-                    {ingredients.kcal}
-                  </TableCell>
-                  <TableCell className="font-medium">
-                    {" "}
-                    {ingredients.kj}
-                  </TableCell>
-                  <TableCell className="font-medium">
-                    {" "}
-                    {ingredients.protein}
-                  </TableCell>
-                  <TableCell className="font-medium">
-                    {" "}
-                    {ingredients.lipids}
-                  </TableCell>
-                  <TableCell className="font-medium">
-                    {" "}
-                    {ingredients.carbohydrate}
-                  </TableCell>
-                  <TableCell className="font-medium">
-                    {" "}
-                    {ingredients.calcium}
-                  </TableCell>
-                  <TableCell className="font-medium">
-                    {" "}
-                    {ingredients.iron}
-                  </TableCell>
-                  <TableCell className="font-medium">
-                    {" "}
-                    {ingredients.retinol}
-                  </TableCell>
-                  <TableCell className="font-medium">
-                    {" "}
-                    {ingredients.vitaminC}
-                  </TableCell>
-                  <TableCell className="font-medium">
-                    {" "}
-                    {ingredients.sodium}
-                  </TableCell>
-                  <TableCell className="text-right"></TableCell>
                 </TableRow>
               ))}
             </TableBody>
+
           </Table>
         </Card>
       </div>

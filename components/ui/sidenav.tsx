@@ -134,12 +134,12 @@ const Sidenav = () => {
               >
                 <Utensils size={18} /> Cardápios
               </Link>
-              {/* <Link
+              <Link
                 className="hover:bg-orange-500 hover:text-white transition-all duration-500 ease-in-out rounded-md p-3 font-semibold text-slate-800 text-sm flex gap-2"
-                href="/admin/technical-sheet"
+                href="/admin/recipes"
               >
-                <ChefHat size={18} /> Ficha técnica
-              </Link> */}
+                <ChefHat size={18} /> Receitas
+              </Link>
               <Link
                 className="hover:bg-orange-500 hover:text-white transition-all duration-500 ease-in-out rounded-md p-3 font-semibold text-slate-800 text-sm flex gap-2"
                 href="/admin/ingredients"
