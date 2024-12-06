@@ -24,7 +24,7 @@ interface Ingredient {
 }
 
 interface Recipe {
-  school_id: string;
+  school_id: string | number;
   name: string;
   preparation_method: string;
   required_utensils: string;
