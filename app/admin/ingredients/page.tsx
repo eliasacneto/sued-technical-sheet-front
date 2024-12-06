@@ -227,7 +227,7 @@ const Ingredients = () => {
                     <Label>Fator de Correção </Label>
                     <Input
                       name="correction_factor"
-                      type="text"
+                      type="number"
                       value={newIngredient.correction_factor || ""}
                       onChange={(event) => {
                         setNewIngredient({
@@ -243,7 +243,7 @@ const Ingredients = () => {
                     <Label>Peso Cozido </Label>
                     <Input
                       name="cooked_weight"
-                      type="text"
+                      type="number"
                       value={newIngredient.cooked_weight || ""}
                       onChange={(event) => {
                         setNewIngredient({
@@ -259,7 +259,7 @@ const Ingredients = () => {
                     <Label>Índice de Cocção</Label>
                     <Input
                       name="cooking_index"
-                      type="text"
+                      type="number"
                       value={newIngredient.cooking_index || ""}
                       onChange={(event) => {
                         setNewIngredient({
@@ -274,7 +274,7 @@ const Ingredients = () => {
                     <Label>Kcal</Label>
                     <Input
                       name="kcal"
-                      type="text"
+                      type="number"
                       value={newIngredient.kcal || ""}
                       onChange={(event) => {
                         setNewIngredient({
@@ -289,7 +289,7 @@ const Ingredients = () => {
                     <Label>Kj</Label>
                     <Input
                       name="kj"
-                      type="text"
+                      type="number"
                       value={newIngredient.kj || ""}
                       onChange={(event) => {
                         setNewIngredient({
@@ -304,7 +304,7 @@ const Ingredients = () => {
                     <Label>Proteínas</Label>
                     <Input
                       name="protein"
-                      type="text"
+                      type="number"
                       value={newIngredient.protein || ""}
                       onChange={(event) => {
                         setNewIngredient({
@@ -319,7 +319,7 @@ const Ingredients = () => {
                     <Label>Lipídios</Label>
                     <Input
                       name="lipids"
-                      type="text"
+                      type="number"
                       value={newIngredient.lipids || ""}
                       onChange={(event) => {
                         setNewIngredient({
@@ -334,7 +334,7 @@ const Ingredients = () => {
                     <Label>Carboidratos</Label>
                     <Input
                       name="carbohydrate"
-                      type="text"
+                      type="number"
                       value={newIngredient.carbohydrate || ""}
                       onChange={(event) => {
                         setNewIngredient({
@@ -349,7 +349,7 @@ const Ingredients = () => {
                     <Label>Cálcio</Label>
                     <Input
                       name="calcium"
-                      type="text"
+                      type="number"
                       value={newIngredient.calcium || ""}
                       onChange={(event) => {
                         setNewIngredient({
@@ -364,7 +364,7 @@ const Ingredients = () => {
                     <Label>Ferro</Label>
                     <Input
                       name="iron"
-                      type="text"
+                      type="number"
                       value={newIngredient.iron || ""}
                       onChange={(event) => {
                         setNewIngredient({
@@ -379,7 +379,7 @@ const Ingredients = () => {
                     <Label>Retinol (vit. A)</Label>
                     <Input
                       name="retinol"
-                      type="text"
+                      type="number"
                       value={newIngredient.retinol || ""}
                       onChange={(event) => {
                         setNewIngredient({
@@ -394,7 +394,7 @@ const Ingredients = () => {
                     <Label>Vit. C</Label>
                     <Input
                       name="vitaminC"
-                      type="text"
+                      type="number"
                       value={newIngredient.vitaminC || ""}
                       onChange={(event) => {
                         setNewIngredient({
@@ -409,7 +409,7 @@ const Ingredients = () => {
                     <Label>Sódio</Label>
                     <Input
                       name="sodium"
-                      type="text"
+                      type="number"
                       value={newIngredient.sodium || ""}
                       onChange={(event) => {
                         setNewIngredient({

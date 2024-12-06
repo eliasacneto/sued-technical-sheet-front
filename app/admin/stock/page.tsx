@@ -314,6 +314,7 @@ const Stock = () => {
                 <div className="flex w-full flex-col gap-2">
                   <Label>Contém na embalagem</Label>
                   <Input
+                    type="number"
                     value={stock.quantity_min || ""}
                     onChange={(event) => setStock({ ...stock, quantity_min: parseFloat(event.target.value) })}
                     placeholder="Quantidade"
@@ -346,6 +347,7 @@ const Stock = () => {
                 <div className="flex w-full flex-col gap-2">
                   <Label>Peso total comprado</Label>
                   <Input
+                    type="number"
                     value={stock.gross_weight || ''}
                     onChange={(event) => setStock({ ...stock, gross_weight: parseFloat(event.target.value) })}
                     placeholder="Peso total"

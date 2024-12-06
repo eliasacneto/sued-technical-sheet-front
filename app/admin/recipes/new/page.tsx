@@ -228,6 +228,7 @@ const NewRecipe = () => {
     }
   };
 
+  console.log('data', searchIngredient[0]?.description);
 
   return (
     <div className="flex w-full flex-col justify-start gap-4">
@@ -240,7 +241,7 @@ const NewRecipe = () => {
           </p>
         </div>
         <div className="flex justify-start gap-4 md:justify-end mb-4">
-          <Link href="/admin/menus">
+          <Link href="/admin/recipes">
             <Button variant="outline" className="text-orange-500 hover:text-orange-600 font-bold">
               <ArrowLeft /> Voltar
             </Button>
@@ -307,7 +308,7 @@ const NewRecipe = () => {
                       <span>
                         - <span className="font-bold">
                           {ingredient.quantity} {ingredient.unit_of_measure}
-                        </span> de {searchIngredient.find(i => i.ingredient_id === ingredient.ingredient_id)?.description || 'Ingrediente'}
+                        </span> de {searchIngredient.find(i => i.id === ingredient.ingredient_id)?.description || 'Ingrediente'}
                       </span>
                       <div className="flex gap-2">
                         <Button
@@ -409,7 +410,7 @@ const NewRecipe = () => {
                         <Label>Peso bruto</Label>
                         <Input
                           placeholder="Peso bruto"
-                          type="text"
+                          type="number"
                           value={newIngredient.quantity || ''}
                           onChange={(e) => setNewIngredient(prev => ({
                             ...prev,
