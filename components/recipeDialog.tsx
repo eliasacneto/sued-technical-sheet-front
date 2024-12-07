@@ -1,148 +1,221 @@
 import jsPDF from "jspdf";
 import { useState } from "react";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
 import { Button } from "./ui/button";
-import { Eye } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
 
 
 interface Recipe {
-  id: number;
-  name: string;
-  preparation_method: string;
-  required_utensils: string;
-  prep_time: number;
-  servings: number;
-  total_cost: string;
-  created_by_name: string;
-  school_name: string;
-  metrics: {
-    cost_per_serving: number;
-    total_ingredients: number;
-    average_ingredient_cost: number;
-  };
-  ingredients: RecipeIngredient[];
+    id: number;
+    name: string;
+    preparation_method: string;
+    required_utensils: string;
+    prep_time: number;
+    servings: number;
+    total_cost: string;
+    created_by_name: string;
+    school_name: string;
+    metrics: {
+        cost_per_serving: number;
+        total_ingredients: number;
+        average_ingredient_cost: number;
+    };
+    ingredients: RecipeIngredient[];
 }
 
 interface RecipeIngredient {
-  ingredient_description: string;
-  quantity: string;
-  unit_of_measure: string;
-  total_cost: number;
-  kcal: string;
-  protein: string;
-  lipids: string;
-  carbohydrate: string;
-  calcium: string;
-  iron: string;
+    ingredient_description: string;
+    description: string;
+    adjusted_quantity: string;
+    gross_weight: string;
+    cooked_weight: string;
+    correction_factor: number;
+    unit_price: number;
+    kcal: string;
+    kj: string;
+    protein: string;
+    lipids: string;
+    carbohydrate: string;
+    calcium: string;
+    iron: string;
+    retinol: string;
+    vitaminC: string;
+    sodium: string;
 }
 
 
-const RecipeDialog = (recipe:Recipe) => {
+const RecipeDialog = ({ recipe }: { recipe: Recipe }) => {
     const [isOpen, setIsOpen] = useState(false);
 
     const handleExportToPDF = () => {
-       
         const doc = new jsPDF({
-            orientation: 'portrait',
+            orientation: 'landscape',
             unit: 'mm',
-            format: 'a4'
+            format: 'a4',
         });
 
-       
-        let yPosition = 20;
-        const margin = 20;
+        const margin = 10;
+        let yPosition = margin;
 
-                doc.setFontSize(18);
-        doc.text(recipe.name, margin, yPosition);
-        yPosition += 10;
 
-      
-        doc.setFontSize(12);
-        doc.text(`Porções: ${recipe.servings}`, margin, yPosition);
+        const contentHeight = calculateContentHeight();
+        const pageHeight = 297;
+
+
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(20);
+        doc.text(recipe?.school_name || "Escola não informada", margin, yPosition, { align: "left" });
         yPosition += 10;
-        doc.text(`Custo Total: R$ ${recipe.total_cost}`, margin, yPosition);
-        yPosition += 10;
-        doc.text(`Custo por Porção: R$ ${recipe.metrics.cost_per_serving.toFixed(2)}`, margin, yPosition);
+        doc.text("FICHA TÉCNICA DE PREPARO", margin, yPosition, { align: "left" });
         yPosition += 15;
 
-      
-        const headers = ['Ingrediente', 'Quantidade', 'Unidade', 'Kcal', 'Custo'];
-        const columnWidths = [60, 30, 30, 30, 30];
+        doc.setFontSize(16);
+        doc.text("Informações da Receita", margin, yPosition);
+        yPosition += 10;
 
-       
-        doc.setFontSize(14);
+        doc.setFontSize(12);
+        doc.text(`Custo Total: R$ ${recipe?.total_cost}`, margin, yPosition);
+        yPosition += 8;
+        doc.text(`Custo por Porção: R$ ${recipe?.metrics?.cost_per_serving.toFixed(2)}`, margin, yPosition);
+        yPosition += 8;
+        doc.text(`Número de Porções: ${recipe?.servings}`, margin, yPosition);
+        yPosition += 15;
+
+
+        doc.setFontSize(16);
+        doc.text("Utensílios Necessários", margin, yPosition);
+        yPosition += 10;
+
+        doc.setFontSize(12);
+        const utensilsText = doc.splitTextToSize(recipe?.required_utensils || "Nenhum utensílio informado", 170);
+        utensilsText.forEach((line: string) => {
+            doc.text(line, margin, yPosition);
+            yPosition += 6;
+        });
+        yPosition += 10;
+
+
+        doc.setFontSize(16);
+        doc.text("Ingredientes", margin, yPosition);
+        yPosition += 10;
+
+        const headers = [
+            "Ingrediente", "Bruto (g)", "Líquido (g)", "Fator Correção",
+            "Custo Unitário (R$)", "kcal", "kJ", "Proteína (g)",
+            "Lipídios (g)", "Carboidrato (g)", "Cálcio (mg)", "Ferro (mg)",
+            "Retinol (mcg)", "Vitamina C (mg)", "Sódio (mg)"
+        ];
+        const columnWidths = [40, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30];
+
+        doc.setFontSize(10);
         let xPosition = margin;
+
+        // Cabeçalho da tabela
         headers.forEach((header, index) => {
             doc.text(header, xPosition, yPosition);
             xPosition += columnWidths[index];
         });
-        yPosition += 10;
+        yPosition += 8;
 
-       
-        doc.setFontSize(10);
+        // Conteúdo da tabela
         recipe?.ingredients?.forEach((ingredient) => {
             xPosition = margin;
             const rowData = [
-                ingredient.ingredient_description,
-                ingredient.quantity,
-                ingredient.unit_of_measure,
-                ingredient.kcal,
-                `R$ ${ingredient.total_cost.toFixed(2)}`
+                ingredient.ingredient_description || ingredient.description  ||  "N/A",
+                ingredient?.gross_weight || ingredient?.adjusted_quantity || "N/A",
+                ingredient?.cooked_weight || "N/A",
+                ingredient?.correction_factor || "N/A",
+                `R$ ${ingredient?.unit_price || "0.00"}`,
+                ingredient?.kcal || "0",
+                ingredient?.kj || "0",
+                ingredient?.protein || "0",
+                ingredient?.lipids || "0",
+                ingredient?.carbohydrate || "0",
+                ingredient?.calcium || "0",
+                ingredient?.iron || "0",
+                ingredient?.retinol || "0",
+                ingredient?.vitaminC || "0",
+                ingredient?.sodium || "0",
             ];
 
             rowData.forEach((data, index) => {
-                doc.text(data, xPosition, yPosition);
+                doc.text(String(data), xPosition, yPosition);
                 xPosition += columnWidths[index];
             });
 
-            yPosition += 10;
+            yPosition += 6;
 
-           
-            if (yPosition > 280) {
+            // Quebra de página
+            if (yPosition > pageHeight - margin) {
                 doc.addPage();
-                yPosition = 20;
+                yPosition = margin;
             }
         });
 
-      
-        yPosition += 10;
-        doc.setFontSize(14);
-        doc.text('Método de Preparo', margin, yPosition);
-        yPosition += 10;
-        doc.setFontSize(10);
 
-       
-        const splitText = doc.splitTextToSize(recipe.preparation_method, 170);
-        doc.text(splitText, margin, yPosition);
+        doc.setFontSize(16);
+        doc.text("Nome da Receita", margin, yPosition);
+        yPosition += 10;
 
-       
-        doc.save(`${recipe.name}_receita.pdf`);
+        doc.setFontSize(12);
+        doc.text(recipe?.name || "Receita sem nome", margin, yPosition);
+        yPosition += 15;
+
+
+        doc.setFontSize(16);
+        doc.text("Método de Preparo", margin, yPosition);
+        yPosition += 10;
+
+        doc.setFontSize(12);
+        const preparationText = doc.splitTextToSize(recipe?.preparation_method || "Método de preparo não informado", 170);
+        preparationText.forEach((line: string) => {
+            doc.text(line, margin, yPosition);
+            yPosition += 6;
+        });
+
+
+        doc.setFontSize(16);
+        doc.text("Tempo de Preparo", margin, yPosition);
+        yPosition += 10;
+
+        doc.setFontSize(12);
+        doc.text(`${recipe?.prep_time || "Tempo de preparo não informado"} minutos`, margin, yPosition);
+        yPosition += 15;
+
+        // Salvar o PDF
+        doc.save(`${recipe?.name}_ficha_tecnica.pdf`);
+    };
+
+    const calculateContentHeight = () => {
+
+        const lineHeight = 10;
+        const numberOfLines = 20;
+        return lineHeight * numberOfLines;
     };
 
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
-                <Button variant="ghost" size="icon">
-                    <Eye className="h-4 w-4" />
+                <Button >
+                    Ficha Técnica de Preparo
                 </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-                <DialogHeader>
-                    <DialogTitle>{recipe.name}</DialogTitle>
-                    <DialogDescription>Detalhes completos da receita</DialogDescription>
+            <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+                <DialogHeader className="m-auto">
+                    <DialogTitle className="text-3xl">{recipe?.school_name}</DialogTitle>
+                    <DialogDescription >FICHA TÉCNICA DE PREPARO</DialogDescription>
                 </DialogHeader>
 
                 <div className="grid grid-cols-2 gap-4 mb-4">
                     <div>
                         <h3 className="font-semibold">Informações da Receita</h3>
-                        <p>Custo Total: R$ {recipe.total_cost}</p>
-                        <p>Custo por Porção: R$ {recipe.metrics.cost_per_serving.toFixed(2)}</p>
-                        <p>Número de Porções: {recipe.servings}</p>
+                        <p>Custo Total: R$ {recipe?.total_cost}</p>
+                        <p>Custo por Porção: R$ {recipe?.metrics?.cost_per_serving.toFixed(2)}</p>
+                        <p>Número de Porções: {recipe?.servings}</p>
                     </div>
                     <div>
                         <h3 className="font-semibold">Utensílios Necessários</h3>
-                        <p>{recipe.required_utensils}</p>
+                        <p>{recipe?.required_utensils}</p>
                     </div>
                 </div>
 
@@ -151,42 +224,327 @@ const RecipeDialog = (recipe:Recipe) => {
                     <TableHeader>
                         <TableRow>
                             <TableHead>Ingrediente</TableHead>
-                            <TableHead>Quantidade</TableHead>
-                            <TableHead>Unidade</TableHead>
-                            <TableHead>Kcal</TableHead>
-                            <TableHead>Custo</TableHead>
+                            <TableHead>Per capita (bruto)</TableHead>
+                            <TableHead>Per capita (liquído)</TableHead>
+                            <TableHead>Fator de correção</TableHead>
+                            <TableHead>Custo unitário</TableHead>
+                            <TableHead>(kcal)</TableHead>
+                            <TableHead>(kJ)</TableHead>
+                            <TableHead>Proteína(g)</TableHead>
+                            <TableHead>Lipídeos(g)</TableHead>
+                            <TableHead>Carboidrato(g)</TableHead>
+                            <TableHead>Cálcio(mg)</TableHead>
+                            <TableHead>Ferro(mg)</TableHead>
+                            <TableHead>Retinol(mcg)</TableHead>
+                            <TableHead>Vit.C (mg)</TableHead>
+                            <TableHead>Sódio(mg)</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {recipe?.ingredients?.map((ingredient, index) => (
                             <TableRow key={index}>
-                                <TableCell>{ingredient.ingredient_description}</TableCell>
-                                <TableCell>{ingredient.quantity}</TableCell>
-                                <TableCell>{ingredient.unit_of_measure}</TableCell>
-                                <TableCell>{ingredient.kcal}</TableCell>
-                                <TableCell>R$ {ingredient.total_cost.toFixed(2)}</TableCell>
+                                <TableCell>{ingredient?.ingredient_description}</TableCell>
+                                <TableCell>{ingredient?.gross_weight}</TableCell>
+                                <TableCell>{ingredient?.cooked_weight}</TableCell>
+                                <TableCell>{ingredient?.correction_factor}</TableCell>
+                                <TableCell>R$ {ingredient?.unit_price}</TableCell>
+                                <TableCell>{ingredient?.kcal}</TableCell>
+                                <TableCell>{ingredient?.kj}</TableCell>
+                                <TableCell>{ingredient?.protein}</TableCell>
+                                <TableCell>{ingredient?.lipids}</TableCell>
+                                <TableCell>{ingredient?.carbohydrate}</TableCell>
+                                <TableCell>{ingredient?.calcium}</TableCell>
+                                <TableCell>{ingredient?.iron}</TableCell>
+                                <TableCell>{ingredient?.retinol}</TableCell>
+                                <TableCell>{ingredient?.vitaminC}</TableCell>
+                                <TableCell>{ingredient?.sodium}</TableCell>
                             </TableRow>
                         ))}
                     </TableBody>
                 </Table>
 
-                <h3 className="text-lg font-bold mt-4 mb-2">Método de Preparo</h3>
-                <p>{recipe.preparation_method}</p>
+                <h3 className="text-lg font-bold mt-4">Nome da Receita</h3>
+                <p>{recipe?.name}</p>
 
-                <DialogFooter>
-                    <Button variant="secondary" onClick={() => setIsOpen(false)}>
-                        Fechar
-                    </Button>
-                    <Button
-                        onClick={handleExportToPDF}
-                        className="bg-orange-500 hover:bg-orange-600 text-white"
-                    >
-                        Exportar PDF
-                    </Button>
-                </DialogFooter>
+                <h3 className="text-lg font-bold mt-4">Método de Preparo</h3>
+                <p>{recipe?.preparation_method}</p>
+
+                <h3 className="text-lg font-bold mt-4">Tempo de Preparo</h3>
+                <p>{recipe?.prep_time}</p>
+
+                <Button onClick={handleExportToPDF}>Exportar para PDF</Button>
             </DialogContent>
         </Dialog>
     );
 };
 
 export default RecipeDialog;
+
+
+
+// import jsPDF from "jspdf";
+// import { useState } from "react";
+// import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
+// import { Button } from "./ui/button";
+// import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
+
+
+// interface Recipe {
+//     id: number;
+//     name: string;
+//     preparation_method: string;
+//     required_utensils: string;
+//     prep_time: number;
+//     servings: number;
+//     total_cost: string;
+//     created_by_name: string;
+//     school_name: string;
+//     metrics: {
+//         cost_per_serving: number;
+//         total_ingredients: number;
+//         average_ingredient_cost: number;
+//     };
+//     ingredients: RecipeIngredient[];
+// }
+
+// interface RecipeIngredient {
+//     ingredient_description: string;
+//     gross_weight: string;
+//     cooked_weight: string;
+//     correction_factor: number;
+//     unit_price: number;
+//     kcal: string;
+//     kj: string;
+//     protein: string;
+//     lipids: string;
+//     carbohydrate: string;
+//     calcium: string;
+//     iron: string;
+//     retinol: string;
+//     vitaminC: string;
+//     sodium: string;
+// }
+
+
+// const RecipeDialog = ({ recipe }: { recipe: Recipe }) => {
+//     const [isOpen, setIsOpen] = useState(false);
+
+//     console.log('recipe Dialog', recipe?.name);
+
+//     const handleExportToPDF = () => {
+//         const doc = new jsPDF({
+//             orientation: 'landscape',
+//             unit: "mm",
+//             format: [297, 210],
+//         });
+
+//         let yPosition = 20;
+//         const margin = 20;
+
+//         doc.setFontSize(18);
+
+//         doc.text(`Porções: ${recipe?.servings}`, margin, yPosition);
+//         yPosition += 10;
+//         doc.text(`Custo Total: R$ ${recipe?.total_cost}`, margin, yPosition);
+//         yPosition += 10;
+//         doc.text(`Custo por Porção: R$ ${recipe?.metrics.cost_per_serving?.toFixed(2)}`, margin, yPosition);
+//         yPosition += 15;
+
+
+//         const headers = ['Ingrediente', 'Quantidade', 'Unidade', 'Kcal', 'Custo'];
+//         const columnWidths = [60, 30, 30, 30, 30];
+
+
+//         doc.setFontSize(14);
+//         let xPosition = margin;
+//         headers.forEach((header, index) => {
+//             doc.text(header, xPosition, yPosition);
+//             xPosition += columnWidths[index];
+//         });
+//         yPosition += 10;
+
+
+//         doc.setFontSize(10);
+//         recipe?.ingredients?.forEach((ingredient) => {
+//             xPosition = margin;
+//             const rowData = [
+//                 ingredient?.ingredient_description || 'N/A', // Ingrediente
+//                 ingredient?.gross_weight || 'N/A',          // Peso bruto
+//                 ingredient?.cooked_weight || 'N/A',        // Peso cozido
+//                 ingredient?.correction_factor || 'N/A', // Fator de correção
+//                 `R$ ${ingredient?.unit_price || '0.00'}`, // Custo unitário
+//                 ingredient?.kcal || '0',                   // Kcal
+//                 ingredient?.kj || '0',                     // kJ
+//                 ingredient?.protein || '0',                // Proteína (g)
+//                 ingredient?.lipids || '0',                 // Lipídeos (g)
+//                 ingredient?.carbohydrate || '0',           // Carboidrato (g)
+//                 ingredient?.calcium || '0',                // Cálcio (mg)
+//                 ingredient?.iron || '0',                   // Ferro (mg)
+//                 ingredient?.retinol || '0',                // Retinol (mcg)
+//                 ingredient?.vitaminC || '0',               // Vitamina C (mg)
+//                 ingredient?.sodium || '0',                 // Sódio (mg)
+//             ];
+
+//             // Adicionando os dados ao PDF
+//             rowData.forEach((data, index) => {
+//                 doc.text(String(data), xPosition, yPosition);
+//                 xPosition += columnWidths[index] || 30; // Largura padrão para colunas adicionais
+//             });
+
+//             yPosition += 10;
+
+//             // Quebra de página, se necessário
+//             if (yPosition > 280) {
+//                 doc.addPage();
+//                 yPosition = 20;
+//             }
+//         });
+
+//         yPosition += 10;
+//         doc.setFontSize(14);
+//         doc.text('Método de Preparo', margin, yPosition);
+//         yPosition += 10;
+//         doc.setFontSize(10);
+
+
+//         const splitText = doc.splitTextToSize(recipe?.preparation_method, 170);
+//         doc.text(splitText, margin, yPosition);
+
+
+//         doc.save(`${recipe?.name}_receita.pdf`);
+//     };
+
+//     return (
+//         <Dialog open={isOpen} onOpenChange={setIsOpen}>
+//             <DialogTrigger asChild>
+//                 <Button >
+//                     Ficha Técnica de Preparo
+//                 </Button>
+//             </DialogTrigger>
+//             <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+//                 <DialogHeader className="m-auto">
+//                     <DialogTitle className="text-3xl">{recipe?.school_name}</DialogTitle>
+//                     <DialogDescription >FICHA TÉCNICA DE PREPARO</DialogDescription>
+//                 </DialogHeader>
+
+//                 <div className="grid grid-cols-2 gap-4 mb-4">
+//                     <div>
+//                         <h3 className="font-semibold">Informações da Receita</h3>
+//                         <p>Custo Total: R$ {recipe?.total_cost}</p>
+//                         <p>Custo por Porção: R$ {recipe?.metrics?.cost_per_serving.toFixed(2)}</p>
+//                         <p>Número de Porções: {recipe?.servings}</p>
+//                     </div>
+//                     <div>
+//                         <h3 className="font-semibold">Utensílios Necessários</h3>
+//                         <p>{recipe?.required_utensils}</p>
+//                     </div>
+//                 </div>
+
+//                 <h3 className="text-lg font-bold mb-2">Ingredientes</h3>
+//                 <Table>
+//                     <TableHeader>
+//                         <TableRow>
+//                             <TableHead>Ingrediente</TableHead>
+//                             <TableHead>Per capita (bruto)</TableHead>
+//                             <TableHead>Per capita (liquído)</TableHead>
+//                             <TableHead>Fator de correção</TableHead>
+//                             {/* <TableHead>Medida Caseira </TableHead> */}
+//                             <TableHead>Custo unitário</TableHead>
+//                             <TableHead>(kcal)</TableHead>
+//                             <TableHead>(kJ)</TableHead>
+//                             <TableHead>Proteína(g)</TableHead>
+//                             <TableHead>Lipídeos(g)</TableHead>
+//                             <TableHead>Carboidrato(g)</TableHead>
+//                             <TableHead>Cálcio(mg)</TableHead>
+//                             <TableHead>Ferro(mg)</TableHead>
+//                             <TableHead>Retinol(mcg)</TableHead>
+//                             <TableHead>Vit.C (mg)</TableHead>
+//                             <TableHead>Sódio(mg)</TableHead>
+//                         </TableRow>
+//                     </TableHeader>
+//                     <TableBody>
+//                         {recipe?.ingredients?.map((ingredient, index) => (
+//                             <TableRow key={index}>
+//                                 <TableCell>{ingredient?.ingredient_description}</TableCell>
+//                                 <TableCell>{ingredient?.gross_weight}</TableCell>
+//                                 <TableCell>{ingredient?.cooked_weight}</TableCell>
+//                                 <TableCell>{ingredient?.correction_factor}</TableCell>
+//                                 <TableCell>R$ {ingredient?.unit_price}</TableCell>
+//                                 <TableCell>{ingredient?.kcal}</TableCell>
+//                                 <TableCell>{ingredient?.kj}</TableCell>
+//                                 <TableCell>{ingredient?.protein}</TableCell>
+//                                 <TableCell>{ingredient?.lipids}</TableCell>
+//                                 <TableCell>{ingredient?.carbohydrate}</TableCell>
+//                                 <TableCell>{ingredient?.calcium}</TableCell>
+//                                 <TableCell>{ingredient?.iron}</TableCell>
+//                                 <TableCell>{ingredient?.retinol}</TableCell>
+//                                 <TableCell>{ingredient?.vitaminC}</TableCell>
+//                                 <TableCell>{ingredient?.sodium}</TableCell>
+//                             </TableRow>
+//                         ))}
+//                     </TableBody>
+//                 </Table>
+
+//                 <h3 className="text-lg font-bold mt-4">Nome da Receita</h3>
+//                 <p>{recipe?.name}</p>
+
+//                 <h3 className="text-lg font-bold mt-4">Método de Preparo</h3>
+//                 <p>{recipe?.preparation_method}</p>
+
+//                 <DialogFooter>
+//                     <Button variant="secondary" onClick={() => setIsOpen(false)}>
+//                         Fechar
+//                     </Button>
+//                     <Button
+//                         onClick={handleExportToPDF}
+//                         className="bg-orange-500 hover:bg-orange-600 text-white"
+//                     >
+//                         Exportar PDF
+//                     </Button>
+//                 </DialogFooter>
+//             </DialogContent>
+//         </Dialog>
+//     );
+// };
+
+// export default RecipeDialog;
+
+// const doc = new jsPDF({
+//     orientation: 'portrait',
+//     unit: 'mm',
+//     format: 'a4'
+// });
+
+
+// let yPosition = 20;
+// const margin = 20;
+
+// doc.setFontSize(18);
+// doc.text(recipe?.name, margin, yPosition);
+// yPosition += 10;
+
+
+// doc.setFontSize(10);
+// recipe?.ingredients?.forEach((ingredient) => {
+//     xPosition = margin;
+//     const rowData = [
+//         ingredient?.ingredient_description,
+//         ingredient?.gross_weight,
+//         ingredient?.unit_of_measure,
+//         ingredient?.kcal,
+//         `R$ ${ingredient?.total_cost.toFixed(2)}`
+//     ];
+
+//     rowData.forEach((data, index) => {
+//         doc.text(data, xPosition, yPosition);
+//         xPosition += columnWidths[index];
+//     });
+
+//     yPosition += 10;
+
+
+//     if (yPosition > 280) {
+//         doc.addPage();
+//         yPosition = 20;
+//     }
+// });
