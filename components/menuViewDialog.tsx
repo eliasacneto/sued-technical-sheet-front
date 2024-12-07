@@ -21,12 +21,12 @@ type MenuViewDialogProps = {
   weekType: string;
 };
 
-const MenuViewDialog: React.FC<MenuViewDialogProps> = ({
+const MenuViewDialog = ({
   day,
   meal,
   month,
   weekType,
-}) => {
+}: MenuViewDialogProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const recipe = recipes.find((rData) => rData.name === meal);
