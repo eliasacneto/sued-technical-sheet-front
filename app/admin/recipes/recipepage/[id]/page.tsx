@@ -14,7 +14,9 @@ import RecipeDialog from '@/components/recipeDialog';
 
 interface Ingredient {
     ingredient_description: string;
+    description: string;
     quantity: number;
+    adjusted_quantity: number;
     unit_of_measure: string;
     total_cost: number;
     kcal: number;
