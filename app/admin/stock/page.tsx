@@ -87,14 +87,12 @@ const Stock = () => {
     fetchDataSchool();
   }, [schoolSearch]);
 
-  const fetchDataSchool = useCallback(async () => {
+  const fetchDataSchool = async () => {
     setLoading(true);
     setError(null);
     try {
-      const response = schoolSearch.length > 2
-        ? await api.get(`/schools/search/${schoolSearch}`)
-        : await api.get(`/schools`);
-      
+      const response =  await api.get(`/schools/search/${schoolSearch}`)
+          
       setSearchSchool(response.data.data);
 
       if (response.data.data.length > 0) {
@@ -111,14 +109,12 @@ const Stock = () => {
     } finally {
       setLoading(false);
     }
-  }, [schoolSearch])
+  }
 
   useEffect(() => {
     if(ingredientSearch.length > 2){
       fetchDataIngredient();  
-    } else {
-       fetchDataIngredient();
-    }
+    } 
   }, [ingredientSearch]);
 
   const fetchDataIngredient = useCallback(async () => {
@@ -283,7 +279,7 @@ const Stock = () => {
                 <InputSelect
                   options={searchSchool}
                   value={stock.school_id}
-                  onChange={(value) => setStock({ ...stock, school_id: value })}
+                  onChange={(value) => setStock({ ...stock, school_id: value})}
                   onSearchChange={(searchTerm) => setSchoolSearch(searchTerm)}
                   placeholder="Selecione uma escola"
                   field="name"

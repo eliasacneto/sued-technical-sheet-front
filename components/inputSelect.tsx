@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Input } from "./ui/input";
 
 interface InputSelectProps {
@@ -12,14 +12,18 @@ interface InputSelectProps {
 
 export const InputSelect = ({
     options,
-    value,
+    value ,
     onChange,
-    onSearchChange, // Adicionar ao destructuring
+    onSearchChange, 
     placeholder,
     field,
 }: InputSelectProps) => {
     const [inputValue, setInputValue] = useState<string | number | [string | number] | undefined>(value);
     const [showOptions, setShowOptions] = useState<boolean>(false);
+
+    useEffect(() => {
+        setInputValue(value);
+    }, [value]);
 
     const handleOptionSelect = (option: any) => {
         setInputValue(option[field]);

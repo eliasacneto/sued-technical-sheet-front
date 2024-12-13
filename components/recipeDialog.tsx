@@ -26,11 +26,15 @@ interface Recipe {
 interface RecipeIngredient {
     ingredient_description: string;
     description: string;
+    quantity: string;
     adjusted_quantity: string;
+    ajustedCookedWeight: string;
     gross_weight: string;
     cooked_weight: string;
     correction_factor: number;
     unit_price: number;
+    adjusted_cost: number;
+    cost_per_serving: number;
     kcal: string;
     kj: string;
     protein: string;
@@ -121,11 +125,11 @@ const RecipeDialog = ({ recipe }: { recipe: Recipe }) => {
         recipe?.ingredients?.forEach((ingredient) => {
             xPosition = margin;
             const rowData = [
-                ingredient.ingredient_description || ingredient.description  ||  "N/A",
+                ingredient.ingredient_description || ingredient.description ,
                 ingredient?.gross_weight || ingredient?.adjusted_quantity || "N/A",
-                ingredient?.cooked_weight || "N/A",
+                ingredient?.cooked_weight || ingredient?.ajustedCookedWeight || "N/A",
                 ingredient?.correction_factor || "N/A",
-                `R$ ${ingredient?.unit_price || "0.00"}`,
+                `R$ ${ingredient?.cost_per_serving || ingredient?.adjusted_cost || "0" }`,
                 ingredient?.kcal || "0",
                 ingredient?.kj || "0",
                 ingredient?.protein || "0",
@@ -136,6 +140,7 @@ const RecipeDialog = ({ recipe }: { recipe: Recipe }) => {
                 ingredient?.retinol || "0",
                 ingredient?.vitaminC || "0",
                 ingredient?.sodium || "0",
+                
             ];
 
             rowData.forEach((data, index) => {
@@ -243,11 +248,11 @@ const RecipeDialog = ({ recipe }: { recipe: Recipe }) => {
                     <TableBody>
                         {recipe?.ingredients?.map((ingredient, index) => (
                             <TableRow key={index}>
-                                <TableCell>{ingredient?.ingredient_description}</TableCell>
-                                <TableCell>{ingredient?.gross_weight}</TableCell>
-                                <TableCell>{ingredient?.cooked_weight}</TableCell>
+                                <TableCell>{ingredient.ingredient_description || ingredient.description}</TableCell>
+                                <TableCell>{ingredient.quantity || ingredient.adjusted_quantity}</TableCell>
+                                <TableCell>{ingredient?.cooked_weight || ingredient?.ajustedCookedWeight}</TableCell>
                                 <TableCell>{ingredient?.correction_factor}</TableCell>
-                                <TableCell>R$ {ingredient?.unit_price}</TableCell>
+                                <TableCell>R$ {ingredient?.cost_per_serving || ingredient?.adjusted_cost}</TableCell>
                                 <TableCell>{ingredient?.kcal}</TableCell>
                                 <TableCell>{ingredient?.kj}</TableCell>
                                 <TableCell>{ingredient?.protein}</TableCell>

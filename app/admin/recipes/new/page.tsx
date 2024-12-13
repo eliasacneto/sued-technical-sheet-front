@@ -100,10 +100,7 @@ const NewRecipe = () => {
   useEffect(() => {
     if (schoolSearch.length > 2) {
       fetchDataSchool();
-    } else {
-      fetchDataSchool()
     }
-    fetchDataSchool();
   }, [schoolSearch]);
 
  
@@ -111,9 +108,8 @@ const NewRecipe = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = schoolSearch.length > 2
-        ? await api.get(`/schools/search/${schoolSearch}`)
-        : await api.get(`/schools`);
+      const response = await api.get(`/schools/search/${schoolSearch}`)
+      
 
       setSearchSchool(response.data.data);
 

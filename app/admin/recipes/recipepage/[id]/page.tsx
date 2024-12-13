@@ -18,6 +18,8 @@ interface Ingredient {
     quantity: number;
     adjusted_quantity: number;
     unit_of_measure: string;
+    cost_per_serving: number;
+    adjusted_cost: number;
     total_cost: number;
     kcal: number;
 }
@@ -179,7 +181,7 @@ const RecipeView = () => {
                                     <TableCell>{ingredient.ingredient_description || ingredient.description}</TableCell>
                                     <TableCell>{ingredient.quantity || ingredient.adjusted_quantity}</TableCell>
                                     <TableCell>{ingredient.unit_of_measure}</TableCell>
-                                    <TableCell>R$ {ingredient?.total_cost?.toFixed(2)}</TableCell>
+                                    <TableCell>R$ {ingredient?.cost_per_serving || ingredient?.adjusted_cost}</TableCell>
                                     <TableCell>{ingredient.kcal}</TableCell>
                                 </TableRow>
                             ))}

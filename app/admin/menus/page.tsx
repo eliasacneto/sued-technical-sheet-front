@@ -1,221 +1,162 @@
 "use client";
 
+import { informationError } from "@/components/informationError";
+import { InputSelect } from "@/components/inputSelect";
 import { Button } from "@/components/ui/button";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import { useState } from "react";
-import { menu } from "../../mock/menu.mock";
-
-import React from "react";
-
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-
-import { Card } from "@/components/ui/card";
-import Link from "next/link";
+import { Calendar } from "@/components/ui/calendar";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Eye, Trash } from "lucide-react";
+import { api } from "@/connect/api";
+import Link from "next/link";
+import { useCallback, useEffect, useState } from "react";
+import { ToastContainer } from "react-toastify";
 
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import MenuViewDialog from "@/components/menuViewDialog";
+
 
 const Menus = () => {
-  const [menuState, setMenuState] = useState(menu);
+  const [date, setDate] = useState<Date | undefined>(undefined);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const [selectedMonth, setSelectedMonth] =
-    useState<keyof typeof menu>("Novembro");
+  // School
+  const [searchSchool, setSearchSchool] = useState<any[]>([]);
+  const [schoolSearch, setSchoolSearch] = useState("");
+  const [selectedSchool, setSelectedSchool] = useState<number | null>(null);
+  const [menus, setMenus] = useState<any[]>([]);
 
-  const [weekType, setWeekType] = useState<"oddWeeks" | "evenWeeks">(
-    "oddWeeks"
-  );
+  useEffect(() => {
+    if (schoolSearch.length > 2) {
+      fetchDataSchool();
+    } 
+  }, [schoolSearch]);
 
-  const currentMenuItems = menuState[selectedMonth][weekType];
+  const fetchDataSchool = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await api.get(`/schools/search/${schoolSearch}`)
 
-  const notify = () =>
-    toast.success("Cadastro feito com sucesso!", {
-      position: "bottom-right",
-      autoClose: 2500,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: "light",
-    });
+      setSearchSchool(response.data.data);
 
-  const handleView = (day: string, meal: string) => {
-    toast.info(`Visualizando: ${day} - ${meal}`, {
-      position: "bottom-right",
-      autoClose: 2500,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: "light",
-    });
+      // Opcional: Seleciona automaticamente a primeira escola
+      if (response.data.data.length > 0) {
+        const schoolData = response.data.data[0];
+        setSelectedSchool(schoolData.id);
+      }
+    } catch (error) {
+      informationError(error);
+    } finally {
+      setLoading(false);
+    }
+  }, [schoolSearch]);
+
+  const fetchMenus = async (selectedDate: Date) => {
+    // Verifica se escola e data estão selecionadas
+    if (!selectedSchool) {
+      informationError('Selecione uma escola');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Extrai dia, mês e ano da data selecionada
+      const day = selectedDate.getDate(); // Usando getDate() para obter o dia do mês
+      const month = selectedDate.getMonth() + 1; // getMonth() retorna 0-11, então soma 1 para ficar 1-12
+      const year = selectedDate.getFullYear();
+
+      const response = await api.get('/menus/menu_data', {
+        params: {
+          day,
+          month,
+          year,
+          schoolId: selectedSchool
+        }
+      });
+
+      setMenus(response.data.data);
+    } catch (error) {
+      informationError(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
+  const handleDateSelect = (selectedDate: Date | undefined) => {
+    if (selectedDate) {
+      setDate(selectedDate);
+      console.log('Calling fetchMenus with:', selectedDate);
+      fetchMenus(selectedDate);
+    }
+  };
+
+  // console.log('date', date);
+  // console.log('selectedSchool', selectedSchool);
+
+
+  console.log('menus', menus);
+
+
+
   return (
-    <div className="flex flex-col justify-start gap-4 ">
+    <div className="flex flex-col justify-start gap-4 h-full">
       <h1 className="font-bold text-xl">Cardápios</h1>
-      <div className="flex justify-end">
-        <Link href="/admin/menus/new">
-          <Button className="bg-orange-500 hover:bg-orange-600 font-bold">
-            + Novo cardápio
-          </Button>
-        </Link>
-        <ToastContainer />
-      </div>
-      <div className="flex justify-between items-center">
-        <div className="flex w-full gap-4">
-          <div className="flex  items-center gap-2">
-            <Label className="text-base">Mês:</Label>
-            <Select
-              value={selectedMonth}
-              onValueChange={(value) =>
-                setSelectedMonth(value as keyof typeof menu)
-              }
-            >
-              <SelectTrigger className="p-2 border rounded">
-                <SelectValue placeholder="Selecionar mês" />
-              </SelectTrigger>
-              <SelectContent>
-                {Object.keys(menuState).map((month) => (
-                  <SelectItem key={month} value={month}>
-                    {month} {/* Exibe o nome do mês */}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="flex  items-center gap-2">
-            <Label className="text-base w-full">Filtrar por semana</Label>
-            <Select
-              value={weekType}
-              onValueChange={(value) =>
-                setWeekType(value as "oddWeeks" | "evenWeeks")
-              }
-            >
-              <SelectTrigger className="p-2 border rounded">
-                <SelectValue placeholder="Selecionar tipo de semana" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="oddWeeks">Semanas Ímpares</SelectItem>
-                <SelectItem value="evenWeeks">Semanas Pares</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+
+      {/* Botões existentes */}
+      <div className="w-full flex row justify-between">
+        <div className="flex">
+          <Link href="/admin/menus/newmenu">
+            <Button className="bg-orange-500 hover:bg-orange-600 font-bold">
+              + Novo Menu
+            </Button>
+          </Link>
+          <ToastContainer />
+        </div>
+        <div className="flex">
+          <Link href="/admin/menus/new">
+            <Button className="bg-orange-500 hover:bg-orange-600 font-bold">
+              + Cardápio Menu
+            </Button>
+          </Link>
+          <ToastContainer />
         </div>
       </div>
-      <div className="flex mt-6">
-        <Card className="w-full p-4">
-          <Table>
-            <TableCaption className="mt-10 text-gray-400">
-              Cardápio do mês de {selectedMonth} -{" "}
-              {weekType === "oddWeeks" ? "Semanas Ímpares" : "Semanas Pares"}
-            </TableCaption>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[200px] font-bold">Dia</TableHead>
-                <TableHead className="font-bold">Refeição</TableHead>
-                <TableHead className=" text-end font-bold">Ações</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {Object.entries(currentMenuItems).map(([day, meal]) => (
-                <TableRow key={day}>
-                  <TableCell className="font-medium">{day}</TableCell>
-                  <TableCell>{meal}</TableCell>
-                  <TableCell className="text-end">
-                    <div className="flex justify-end gap-2">
-                      {/* Botão de Visualizar */}
 
-                      <MenuViewDialog
-                        day={day}
-                        meal={meal}
-                        month={selectedMonth}
-                        weekType={weekType}
-                      />
-                      <Dialog>
-                        <DialogTrigger>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="text-red-500 hover:text-red-700"
-                          >
-                            <Trash />
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                          <DialogHeader>
-                            <DialogTitle>
-                              Deseja remover o cardápio?
-                            </DialogTitle>
-                            <DialogDescription>
-                              Essa ação não poderá ser desfeita.
-                            </DialogDescription>
-                          </DialogHeader>
-                          <DialogFooter>
-                            <Button variant="secondary">Fechar</Button>
-                            <Button
-                              variant="destructive"
-                              onClick={() =>
-                                setMenuState((prevMenu) => ({
-                                  ...prevMenu,
-                                  [selectedMonth]: {
-                                    ...prevMenu[selectedMonth],
-                                    [weekType]: Object.fromEntries(
-                                      Object.entries(
-                                        prevMenu[selectedMonth][weekType]
-                                      ).filter(([key]) => key !== day)
-                                    ),
-                                  },
-                                }))
-                              }
-                            >
-                              Remover
-                            </Button>
-                          </DialogFooter>
-                        </DialogContent>
-                      </Dialog>
-                      {/* <Button
-                        variant="ghost"
-                        className="text-red-500 hover:text-red-600 px-2 py-1"
-                        onClick={() => handleDelete(day)}
-                      >
-                        <Trash />
-                      </Button> */}
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </Card>
+      <div className="flex justify-center items-center w-full h-full">
+        <div className="space-y-4">
+          <div className="flex flex-col gap-2">
+            <Label>Nome da escola</Label>
+            <InputSelect
+              options={searchSchool}
+              value={selectedSchool}
+              onChange={(value) => setSelectedSchool(value)}
+              onSearchChange={(searchTerm) => setSchoolSearch(searchTerm)}
+              placeholder="Selecione uma escola"
+              field="name"
+            />
+          </div>
+
+          <Calendar
+            mode="single"
+            selected={date}
+            onSelect={handleDateSelect}
+            className="rounded-md border"
+          />
+        </div>
       </div>
+
+      {/* Opcional: Exibição dos menus encontrados */}
+      {menus && menus.length > 0 && (
+        <div className="mt-4">
+          <h2 className="font-bold text-lg mb-2">Cardápios Encontrados</h2>
+          {menus.map((menu) => (
+            <div key={menu.id} className="border p-2 mb-2">
+              {/* Adicione aqui a exibição dos detalhes do menu */}
+              <pre>{JSON.stringify(menu, null, 2)}</pre>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
